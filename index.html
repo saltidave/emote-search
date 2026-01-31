@@ -1,129 +1,563 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<title>Emote Suche</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-  body {
-    margin: 0;
-    font-family: system-ui, sans-serif;
-    background: #0f0f0f;
-    color: #fff;
-  }
-  header {
-    padding: 16px;
-    position: sticky;
-    top: 0;
-    background: #0f0f0f;
-    z-index: 10;
-  }
-  input {
-    width: 100%;
-    padding: 12px;
-    font-size: 16px;
-    border-radius: 8px;
-    border: none;
-  }
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 12px;
-    padding: 16px;
-  }
-  .card {
-    background: #1b1b1b;
-    border-radius: 10px;
-    padding: 8px;
-    text-align: center;
-    cursor: pointer;
-  }
-  .card img {
-    max-width: 100%;
-    height: auto;
-  }
-  .name {
-    margin-top: 6px;
-    font-size: 14px;
-    word-break: break-word;
-  }
-  .toast {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #333;
-    padding: 10px 16px;
-    border-radius: 8px;
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-  .toast.show {
-    opacity: 1;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Emote Suche</title>
+
+  <style>
+    :root{
+      --bg: #0b0c10;
+      --panel: rgba(255,255,255,.06);
+      --panel2: rgba(255,255,255,.08);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.65);
+      --border: rgba(255,255,255,.12);
+      --shadow: 0 12px 40px rgba(0,0,0,.45);
+      --radius: 16px;
+      --accent: #7c5cff;
+      --accent2: #22d3ee;
+      --ok: #10b981;
+      --warn: #f59e0b;
+      --bad: #ef4444;
+      --cardMin: 120px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 15% -10%, rgba(124,92,255,.22), transparent 60%),
+        radial-gradient(1000px 500px at 90% 10%, rgba(34,211,238,.16), transparent 55%),
+        radial-gradient(900px 500px at 50% 120%, rgba(16,185,129,.10), transparent 60%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    /* Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      padding: 14px 16px 12px;
+      backdrop-filter: blur(14px);
+      background: linear-gradient(to bottom, rgba(11,12,16,.90), rgba(11,12,16,.65));
+      border-bottom: 1px solid var(--border);
+    }
+
+    .topbar{
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      gap: 10px;
+    }
+
+    .titleRow{
+      display:flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    h1{
+      margin: 0;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: .2px;
+    }
+
+    .counter{
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .searchWrap{
+      position: relative;
+      display:flex;
+      gap: 10px;
+      align-items:center;
+    }
+
+    input{
+      width: 100%;
+      padding: 12px 44px 12px 44px;
+      font-size: 15px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      outline: none;
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      box-shadow: 0 8px 28px rgba(0,0,0,.25);
+      transition: border-color .15s, transform .15s, background .15s;
+    }
+    input::placeholder{ color: rgba(255,255,255,.45); }
+
+    input:focus{
+      border-color: rgba(124,92,255,.55);
+      background: rgba(255,255,255,.08);
+      transform: translateY(-1px);
+    }
+
+    .icon{
+      position:absolute;
+      left: 14px;
+      width: 18px;
+      height: 18px;
+      opacity: .8;
+      pointer-events:none;
+    }
+
+    .clearBtn{
+      position:absolute;
+      right: 10px;
+      border: 0;
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 6px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      display:none;
+    }
+    .clearBtn:hover{ background: rgba(255,255,255,.12); }
+    .clearBtn:active{ transform: translateY(1px); }
+
+    .chips{
+      display:flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 2px;
+      min-height: 20px;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: rgba(255,255,255,.85);
+      background: rgba(124,92,255,.16);
+      border: 1px solid rgba(124,92,255,.28);
+    }
+    .chip button{
+      border: 0;
+      background: transparent;
+      color: rgba(255,255,255,.75);
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      padding: 0;
+    }
+    .chip button:hover{ color: white; }
+
+    /* Content */
+    .wrap{
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 14px 16px 28px;
+    }
+
+    .status{
+      margin: 14px 0 0;
+      padding: 12px 14px;
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.06);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      display:none;
+    }
+    .status.bad{
+      display:block;
+      border-color: rgba(239,68,68,.35);
+      background: rgba(239,68,68,.08);
+      color: rgba(255,255,255,.84);
+    }
+    .status.loading{
+      display:block;
+    }
+
+    .grid{
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(var(--cardMin), 1fr));
+      gap: 12px;
+      padding: 16px 0 0;
+    }
+
+    .card{
+      position: relative;
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 16px;
+      padding: 10px;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(0,0,0,.25);
+      overflow: hidden;
+      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+      user-select: none;
+      min-height: 132px;
+    }
+    .card:hover{
+      transform: translateY(-2px);
+      border-color: rgba(124,92,255,.35);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.05));
+    }
+    .card:active{
+      transform: translateY(0px);
+    }
+
+    .imgWrap{
+      height: 78px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius: 12px;
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.08);
+      overflow:hidden;
+    }
+
+    .card img{
+      max-width: 100%;
+      max-height: 72px;
+      height: auto;
+      width: auto;
+      image-rendering: -webkit-optimize-contrast;
+    }
+
+    .name{
+      margin-top: 8px;
+      font-size: 13px;
+      color: rgba(255,255,255,.9);
+      word-break: break-word;
+      line-height: 1.15;
+    }
+
+    .hint{
+      margin-top: 6px;
+      font-size: 11px;
+      color: rgba(255,255,255,.55);
+    }
+
+    /* Skeleton */
+    .skeleton{
+      position: relative;
+      overflow:hidden;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 16px;
+      padding: 10px;
+      min-height: 132px;
+    }
+    .skeleton::after{
+      content:"";
+      position:absolute;
+      inset:-40%;
+      transform: translateX(-60%);
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.12), transparent);
+      animation: shimmer 1.2s infinite;
+    }
+    .skImg{
+      height: 78px;
+      border-radius: 12px;
+      background: rgba(0,0,0,.14);
+      border: 1px solid rgba(255,255,255,.06);
+    }
+    .skLine{
+      height: 12px;
+      margin-top: 10px;
+      width: 80%;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+    }
+    .skLine2{
+      height: 10px;
+      margin-top: 8px;
+      width: 55%;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+    }
+    @keyframes shimmer{
+      0%{ transform: translateX(-60%); }
+      100%{ transform: translateX(60%); }
+    }
+
+    /* Toast */
+    .toast{
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(8px);
+      background: rgba(20,20,24,.92);
+      border: 1px solid rgba(255,255,255,.14);
+      padding: 10px 14px;
+      border-radius: 999px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s, transform .18s;
+      box-shadow: var(--shadow);
+      font-size: 13px;
+      color: rgba(255,255,255,.9);
+      max-width: calc(100vw - 32px);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .toast.show{
+      opacity: 1;
+      transform: translateX(-50%) translateY(0px);
+    }
+
+    .footerNote{
+      margin: 18px 0 0;
+      font-size: 12px;
+      color: rgba(255,255,255,.45);
+      text-align: center;
+    }
+
+    @media (max-width: 520px){
+      :root{ --cardMin: 110px; }
+      header{ padding: 12px 12px 10px; }
+      .wrap{ padding: 12px 12px 24px; }
+    }
+  </style>
 </head>
+
 <body>
+  <header>
+    <div class="topbar">
+      <div class="titleRow">
+        <h1>Emote Suche</h1>
+        <div class="counter" id="counter">–</div>
+      </div>
 
-<header>
-  <input id="search" placeholder="Tags suchen (z. B. katze, yoink)">
-</header>
+      <div class="searchWrap">
+        <!-- magnifier icon -->
+        <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="rgba(255,255,255,.75)" stroke-width="2"/>
+          <path d="M16.5 16.5 21 21" stroke="rgba(255,255,255,.75)" stroke-width="2" stroke-linecap="round"/>
+        </svg>
 
-<div class="grid" id="grid"></div>
-<div class="toast" id="toast">Kopiert</div>
+        <input id="search" autocomplete="off" spellcheck="false"
+          placeholder="Tags suchen (z. B. katze, yoink). Tipp: ESC leert." />
+
+        <button class="clearBtn" id="clearBtn" type="button">Clear</button>
+      </div>
+
+      <div class="chips" id="chips"></div>
+      <div class="status loading" id="status">Lade Emotes…</div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="grid" id="grid"></div>
+    <div class="footerNote">Klick auf eine Karte kopiert den Namen in die Zwischenablage.</div>
+  </main>
+
+  <div class="toast" id="toast">Kopiert</div>
 
 <script>
-const SHEET_ID = "1RvasLLCoS_XqJXmqr-HUsfY0ffpfRqPg7efCmSWLIYE";
-const SHEET_NAME = "Emotes";
-const FEED_URL = `https://opensheet.elk.sh/${SHEET_ID}/${encodeURIComponent(SHEET_NAME)}`;
+  const SHEET_ID = "1RvasLLCoS_XqJXmqr-HUsfY0ffpfRqPg7efCmSWLIYE";
+  const SHEET_NAME = "Emotes";
+  const FEED_URL = `https://opensheet.elk.sh/${SHEET_ID}/${encodeURIComponent(SHEET_NAME)}`;
 
-let emotes = [];
+  let emotes = [];
+  let activeTerms = [];
 
-fetch(FEED_URL)
-  .then(r => r.json())
-  .then(rows => {
-    emotes = rows.map(r => ({
-      name: r.emote_name,
-      img: r.image_url,
-      tags: (r.tags || "").toLowerCase()
-    }));
-    render(emotes);
+  const els = {
+    search: document.getElementById("search"),
+    grid: document.getElementById("grid"),
+    toast: document.getElementById("toast"),
+    counter: document.getElementById("counter"),
+    status: document.getElementById("status"),
+    chips: document.getElementById("chips"),
+    clearBtn: document.getElementById("clearBtn")
+  };
+
+  // --- Helpers ---
+  function normalizeTerms(raw) {
+    // allow commas OR spaces; keep quoted phrases? (not implemented)
+    return raw
+      .toLowerCase()
+      .split(/[,]+/)                 // first split by commas
+      .flatMap(part => part.trim().split(/\s+/)) // then split remaining by spaces
+      .map(t => t.trim())
+      .filter(Boolean);
+  }
+
+  function setLoadingSkeleton(count = 18){
+    els.grid.innerHTML = "";
+    for (let i = 0; i < count; i++){
+      const sk = document.createElement("div");
+      sk.className = "skeleton";
+      sk.innerHTML = `<div class="skImg"></div><div class="skLine"></div><div class="skLine2"></div>`;
+      els.grid.appendChild(sk);
+    }
+  }
+
+  function setStatus(type, text){
+    if (!text){
+      els.status.className = "status";
+      els.status.style.display = "none";
+      return;
+    }
+    els.status.textContent = text;
+    els.status.style.display = "block";
+    els.status.className = "status " + (type || "");
+  }
+
+  function updateCounter(shown, total){
+    els.counter.textContent = `${shown} / ${total}`;
+  }
+
+  function showToast(text){
+    els.toast.textContent = text;
+    els.toast.classList.add("show");
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => els.toast.classList.remove("show"), 1200);
+  }
+
+  function copy(text){
+    navigator.clipboard.writeText(text).then(() => {
+      showToast(`"${text}" kopiert`);
+    }).catch(() => {
+      // fallback: try older execCommand
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand("copy");
+        showToast(`"${text}" kopiert`);
+      } catch {
+        showToast("Kopieren nicht möglich");
+      }
+      document.body.removeChild(ta);
+    });
+  }
+
+  function renderChips(){
+    els.chips.innerHTML = "";
+    activeTerms.forEach(term => {
+      const c = document.createElement("span");
+      c.className = "chip";
+      c.innerHTML = `<span>${term}</span><button title="Entfernen" aria-label="Entfernen">×</button>`;
+      c.querySelector("button").onclick = () => {
+        activeTerms = activeTerms.filter(t => t !== term);
+        syncSearchFromTerms();
+        applyFilter();
+      };
+      els.chips.appendChild(c);
+    });
+  }
+
+  function syncSearchFromTerms(){
+    els.search.value = activeTerms.join(", ");
+    els.clearBtn.style.display = els.search.value ? "block" : "none";
+  }
+
+  function applyFilter(){
+    const filtered = !activeTerms.length
+      ? emotes
+      : emotes.filter(e => activeTerms.every(t => (e.tags || "").includes(t)));
+
+    render(filtered);
+    updateCounter(filtered.length, emotes.length);
+    renderChips();
+  }
+
+  function render(list){
+    els.grid.innerHTML = "";
+    if (!list.length){
+      const empty = document.createElement("div");
+      empty.className = "status";
+      empty.style.display = "block";
+      empty.textContent = "Keine Treffer. Versuch andere Tags.";
+      els.grid.appendChild(empty);
+      return;
+    }
+
+    list.forEach(e => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <div class="imgWrap">
+          <img loading="lazy" src="${e.img}" alt="${escapeHtml(e.name)}">
+        </div>
+        <div class="name">${escapeHtml(e.name)}</div>
+        <div class="hint">Click to copy</div>
+      `;
+      card.onclick = () => copy(e.name);
+      els.grid.appendChild(card);
+    });
+  }
+
+  // tiny sanitizer for name display
+  function escapeHtml(str){
+    return String(str ?? "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  // --- Events ---
+  els.search.addEventListener("input", () => {
+    const raw = els.search.value.trim();
+    els.clearBtn.style.display = raw ? "block" : "none";
+    activeTerms = normalizeTerms(raw);
+    applyFilter();
   });
 
-document.getElementById("search").addEventListener("input", e => {
-  const q = e.target.value.toLowerCase().trim();
-  if (!q) return render(emotes);
-
-  const terms = q.split(",").map(t => t.trim()).filter(Boolean);
-  const filtered = emotes.filter(e =>
-    terms.every(t => e.tags.includes(t))
-  );
-  render(filtered);
-});
-
-function render(list) {
-  const grid = document.getElementById("grid");
-  grid.innerHTML = "";
-  list.forEach(e => {
-    const div = document.createElement("div");
-    div.className = "card";
-    div.innerHTML = `
-      <img src="${e.img}" alt="${e.name}">
-      <div class="name">${e.name}</div>
-    `;
-    div.onclick = () => copy(e.name);
-    grid.appendChild(div);
+  els.clearBtn.addEventListener("click", () => {
+    activeTerms = [];
+    els.search.value = "";
+    els.clearBtn.style.display = "none";
+    els.search.focus();
+    applyFilter();
   });
-}
 
-function copy(text) {
-  navigator.clipboard.writeText(text);
-  const t = document.getElementById("toast");
-  t.textContent = `"${text}" kopiert`;
-  t.classList.add("show");
-  setTimeout(() => t.classList.remove("show"), 1200);
-}
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      activeTerms = [];
+      els.search.value = "";
+      els.clearBtn.style.display = "none";
+      applyFilter();
+    }
+  });
+
+  // --- Load data ---
+  setLoadingSkeleton();
+  setStatus("loading", "Lade Emotes…");
+
+  fetch(FEED_URL)
+    .then(r => {
+      if (!r.ok) throw new Error("Feed error: " + r.status);
+      return r.json();
+    })
+    .then(rows => {
+      emotes = rows.map(r => ({
+        name: r.emote_name || "",
+        img: r.image_url || "",
+        tags: (r.tags || "").toLowerCase()
+      })).filter(e => e.name && e.img);
+
+      setStatus("", "");
+      updateCounter(emotes.length, emotes.length);
+      applyFilter();
+    })
+    .catch(err => {
+      console.error(err);
+      els.grid.innerHTML = "";
+      setStatus("bad", "Konnte Emotes nicht laden. Prüfe Sheet-ID/Tabellenname oder opensheet.elk.sh ist down.");
+      els.counter.textContent = "–";
+    });
 </script>
-
 </body>
 </html>
