@@ -26,24 +26,19 @@
     * { box-sizing: border-box; }
     html, body { height: 100%; }
 
-body {
-  
-  background: transparent;
-  color: rgba(255,255,255,.92);
-
-margin: 0;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-
-  background:
-    radial-gradient(1200px 600px at 15% -10%, rgba(124,92,255,.22), transparent 60%),
-    radial-gradient(1000px 500px at 90% 10%, rgba(34,211,238,.16), transparent 55%),
-    radial-gradient(900px 500px at 50% 120%, rgba(16,185,129,.10), transparent 60%),
-    #0b0c10;
-
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
-}
-
+    body {
+      background: transparent;
+      color: rgba(255,255,255,.92);
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 15% -10%, rgba(124,92,255,.22), transparent 60%),
+        radial-gradient(1000px 500px at 90% 10%, rgba(34,211,238,.16), transparent 55%),
+        radial-gradient(900px 500px at 50% 120%, rgba(16,185,129,.10), transparent 60%),
+        #0b0c10;
+      background-repeat: no-repeat;
+      background-size: 100% 100%;
+    }
 
     /* Header */
     header {
@@ -215,9 +210,7 @@ margin: 0;
       border-color: rgba(124,92,255,.35);
       background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.05));
     }
-    .card:active{
-      transform: translateY(0px);
-    }
+    .card:active{ transform: translateY(0px); }
 
     .imgWrap{
       height: 78px;
@@ -250,6 +243,29 @@ margin: 0;
       margin-top: 6px;
       font-size: 11px;
       color: rgba(255,255,255,.55);
+    }
+
+    /* Removed styling */
+    .card.removed{
+      opacity: .38;
+      filter: grayscale(1);
+      cursor: not-allowed;
+    }
+    .card.removed:hover{
+      transform: none;
+      border-color: rgba(255,255,255,.10);
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
+    }
+    .badgeRemoved{
+      position:absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(239,68,68,.18);
+      border: 1px solid rgba(239,68,68,.35);
+      color: rgba(255,255,255,.85);
     }
 
     /* Skeleton */
@@ -345,7 +361,6 @@ margin: 0;
       </div>
 
       <div class="searchWrap">
-        <!-- magnifier icon -->
         <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="rgba(255,255,255,.75)" stroke-width="2"/>
           <path d="M16.5 16.5 21 21" stroke="rgba(255,255,255,.75)" stroke-width="2" stroke-linecap="round"/>
@@ -364,7 +379,7 @@ margin: 0;
 
   <main class="wrap">
     <div class="grid" id="grid"></div>
-    <div class="footerNote">Klick auf eine Karte kopiert den Namen in die Zwischenablage.</div>
+    <div class="footerNote">Klick auf eine Karte kopiert den Namen in die Zwischenablage (nur aktive Emotes).</div>
   </main>
 
   <div class="toast" id="toast">Kopiert</div>
@@ -389,11 +404,10 @@ margin: 0;
 
   // --- Helpers ---
   function normalizeTerms(raw) {
-    // allow commas OR spaces; keep quoted phrases? (not implemented)
     return raw
       .toLowerCase()
-      .split(/[,]+/)                 // first split by commas
-      .flatMap(part => part.trim().split(/\s+/)) // then split remaining by spaces
+      .split(/[,]+/)
+      .flatMap(part => part.trim().split(/\s+/))
       .map(t => t.trim())
       .filter(Boolean);
   }
@@ -434,7 +448,6 @@ margin: 0;
     navigator.clipboard.writeText(text).then(() => {
       showToast(`"${text}" kopiert`);
     }).catch(() => {
-      // fallback: try older execCommand
       const ta = document.createElement("textarea");
       ta.value = text;
       document.body.appendChild(ta);
@@ -492,20 +505,26 @@ margin: 0;
 
     list.forEach(e => {
       const card = document.createElement("div");
-      card.className = "card";
+      card.className = "card" + (e.active ? "" : " removed");
       card.innerHTML = `
+        ${e.active ? "" : `<div class="badgeRemoved">Entfernt</div>`}
         <div class="imgWrap">
           <img loading="lazy" src="${e.img}" alt="${escapeHtml(e.name)}">
         </div>
         <div class="name">${escapeHtml(e.name)}</div>
-        <div class="hint">Click to copy</div>
+        <div class="hint">${e.active ? "Click to copy" : "Entfernt"}</div>
       `;
-      card.onclick = () => copy(e.name);
+
+      if (e.active) {
+        card.onclick = () => copy(e.name);
+      } else {
+        card.onclick = null;
+      }
+
       els.grid.appendChild(card);
     });
   }
 
-  // tiny sanitizer for name display
   function escapeHtml(str){
     return String(str ?? "")
       .replaceAll("&","&amp;")
@@ -553,7 +572,8 @@ margin: 0;
       emotes = rows.map(r => ({
         name: r.emote_name || "",
         img: r.image_url || "",
-        tags: (r.tags || "").toLowerCase()
+        tags: (r.tags || "").toLowerCase(),
+        active: String(r.active ?? "TRUE").toUpperCase() === "TRUE"
       })).filter(e => e.name && e.img);
 
       setStatus("", "");
