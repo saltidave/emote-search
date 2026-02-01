@@ -359,6 +359,7 @@
         <h1>Niisa 7TV Emote Suche</h1>
         <div class="counter" id="counter">–</div>
       </div>
+<div class="counter" id="lastUpdate"></div>
 
       <div class="searchWrap">
         <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -400,6 +401,7 @@
     status: document.getElementById("status"),
     chips: document.getElementById("chips"),
     clearBtn: document.getElementById("clearBtn")
+    lastUpdate: document.getElementById("lastUpdate")
   };
 
   // --- Helpers ---
@@ -563,29 +565,37 @@
   setLoadingSkeleton();
   setStatus("loading", "Lade Emotes…");
 
-  fetch(FEED_URL)
-    .then(r => {
-      if (!r.ok) throw new Error("Feed error: " + r.status);
-      return r.json();
-    })
-    .then(rows => {
-      emotes = rows.map(r => ({
-        name: r.emote_name || "",
-        img: r.image_url || "",
-        tags: (r.tags || "").toLowerCase(),
-        active: String(r.active ?? "TRUE").toUpperCase() === "TRUE"
-      })).filter(e => e.name && e.img);
+fetch(FEED_URL)
+  .then(r => {
+    if (!r.ok) throw new Error("Feed error: " + r.status);
+    return r.json();
+  })
+  .then(rows => {
 
-      setStatus("", "");
-      updateCounter(emotes.length, emotes.length);
-      applyFilter();
-    })
-    .catch(err => {
-      console.error(err);
-      els.grid.innerHTML = "";
-      setStatus("bad", "Konnte Emotes nicht laden. Prüfe Sheet-ID/Tabellenname oder opensheet.elk.sh ist down.");
-      els.counter.textContent = "–";
-    });
+    // 👇 HIER: Last-Update einmal auslesen
+    if (rows.length && rows[0].updated_at) {
+      els.lastUpdate.textContent = `Daten zuletzt aktualisiert: ${rows[0].updated_at}`;
+    }
+
+    // danach ganz normal Emotes bauen
+    emotes = rows.map(r => ({
+      name: r.emote_name || "",
+      img: r.image_url || "",
+      tags: (r.tags || "").toLowerCase(),
+      active: String(r.active ?? "TRUE").toUpperCase() === "TRUE"
+    })).filter(e => e.name && e.img);
+
+    setStatus("", "");
+    updateCounter(emotes.length, emotes.length);
+    applyFilter();
+  })
+  .catch(err => {
+    console.error(err);
+    els.grid.innerHTML = "";
+    setStatus("bad", "Konnte Emotes nicht laden. Prüfe Sheet-ID/Tabellenname oder opensheet.elk.sh ist down.");
+    els.counter.textContent = "–";
+  });
+
 </script>
 </body>
 </html>
