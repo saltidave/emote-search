@@ -1,316 +1,406 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Niisa 7TV Emote Suche</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Niisa 7TV Emote Suche</title>
 
-<style>
-:root{
-  --bg:#0b0c10;
-  --text:rgba(255,255,255,.92);
-  --muted:rgba(255,255,255,.6);
-  --border:rgba(255,255,255,.12);
-  --accent:#7c5cff;
-  --suggest:#22d3ee;
-  --radius:16px;
-  --cardMin:120px;
-}
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-  color:var(--text);
-  background:
-    radial-gradient(1200px 600px at 15% -10%, rgba(124,92,255,.22), transparent 60%),
-    radial-gradient(1000px 500px at 90% 10%, rgba(34,211,238,.16), transparent 55%),
-    #0b0c10;
-}
+  <style>
+    :root{
+      --bg:#0b0c10;
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.6);
+      --border:rgba(255,255,255,.12);
+      --accent:#7c5cff;
+      --suggest:#22d3ee;
+      --radius:16px;
+      --cardMin:120px;
+    }
 
-/* Header */
-header{
-  position:sticky;top:0;z-index:10;
-  padding:14px 16px;
-  backdrop-filter:blur(14px);
-  background:linear-gradient(to bottom, rgba(11,12,16,.9), rgba(11,12,16,.7));
-  border-bottom:1px solid var(--border);
-}
-.topbar{max-width:1100px;margin:0 auto;display:grid;gap:10px}
-.titleRow{display:flex;justify-content:space-between;align-items:baseline}
-h1{font-size:16px;margin:0}
-.counter{font-size:12px;color:var(--muted)}
+    *{ box-sizing:border-box; }
+    html, body { height:100%; }
 
-.searchWrap{position:relative}
-input{
-  width:100%;
-  padding:12px 40px;
-  border-radius:14px;
-  border:1px solid var(--border);
-  background:rgba(255,255,255,.06);
-  color:var(--text);
-  font-size:15px;
-}
-input::placeholder{color:rgba(255,255,255,.45)}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 15% -10%, rgba(124,92,255,.22), transparent 60%),
+        radial-gradient(1000px 500px at 90% 10%, rgba(34,211,238,.16), transparent 55%),
+        radial-gradient(900px 500px at 50% 120%, rgba(16,185,129,.10), transparent 60%),
+        var(--bg);
+      background-repeat:no-repeat;
+      background-size:100% 100%;
+    }
 
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
-.chip{
-  padding:6px 10px;
-  border-radius:999px;
-  font-size:12px;
-  background:rgba(124,92,255,.16);
-  border:1px solid rgba(124,92,255,.28);
-  cursor:pointer;
+    header{
+      position:sticky; top:0; z-index:10;
+      padding:14px 16px;
+      backdrop-filter:blur(14px);
+      background:linear-gradient(to bottom, rgba(11,12,16,.90), rgba(11,12,16,.70));
+      border-bottom:1px solid var(--border);
+    }
 
-.chip{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  padding:6px 10px;
-  border-radius:999px;
-  font-size:12px;
-  background:rgba(124,92,255,.16);
-  border:1px solid rgba(124,92,255,.28);
-}
+    .topbar{ max-width:1100px; margin:0 auto; display:grid; gap:10px; }
+    .titleRow{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
+    h1{ font-size:16px; margin:0; }
+    .counter{ font-size:12px; color:var(--muted); }
 
-.chip .close{
-  font-weight:700;
-  opacity:.7;
-  cursor:pointer;
-  padding-left:4px;
-}
+    .searchWrap{ position:relative; }
+    input{
+      width:100%;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      font-size:15px;
+      outline:none;
+    }
+    input::placeholder{ color:rgba(255,255,255,.45); }
 
-.chip .close:hover{
-  opacity:1;
-}
+    .chips{ display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
 
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      background:rgba(124,92,255,.16);
+      border:1px solid rgba(124,92,255,.28);
+      cursor:pointer;
+      user-select:none;
+    }
 
-}
-#suggestions .chip{
-  background:rgba(34,211,238,.14);
-  border-color:rgba(34,211,238,.3);
-}
+    .chip .close{
+      font-weight:700;
+      opacity:.75;
+      cursor:pointer;
+      padding-left:4px;
+      line-height:1;
+    }
+    .chip .close:hover{ opacity:1; }
 
-.wrap{max-width:1100px;margin:0 auto;padding:16px}
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(var(--cardMin),1fr));
-  gap:12px;
-}
+    #suggestions .chip{
+      background:rgba(34,211,238,.14);
+      border-color:rgba(34,211,238,.30);
+    }
 
-.card img{
-  max-width: 100%;
-  max-height: 72px;
-  width: auto;
-  height: auto;
-  object-fit: contain;
-}
-  
-/* Cards */
-.card{
-  background:rgba(255,255,255,.06);
-  border:1px solid rgba(255,255,255,.1);
-  border-radius:16px;
-  padding:10px;
-  cursor:pointer;
-}
-.card.removed{
-  opacity:.35;
-  filter:grayscale(1);
-  cursor:not-allowed;
-}
-.imgWrap{
-  height:78px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:rgba(0,0,0,.2);
-  border-radius:12px;
-}
-.card img{max-height:72px}
-.name{margin-top:8px;font-size:13px}
-.hint{font-size:11px;color:var(--muted)}
-.badge{
-  position:absolute;
-  top:8px;right:8px;
-  font-size:11px;
-  padding:3px 7px;
-  border-radius:999px;
-  background:rgba(239,68,68,.2);
-  border:1px solid rgba(239,68,68,.4);
-}
+    .wrap{ max-width:1100px; margin:0 auto; padding:16px; }
 
-/* Toast */
-.toast{
-  position:fixed;
-  bottom:20px;
-  left:50%;
-  transform:translateX(-50%);
-  background:#111;
-  border:1px solid var(--border);
-  padding:8px 14px;
-  border-radius:999px;
-  opacity:0;
-  transition:.2s;
-}
-.toast.show{opacity:1}
-.footerNote{
-  text-align:center;
-  font-size:12px;
-  color:var(--muted);
-  margin-top:14px;
-}
-</style>
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill, minmax(var(--cardMin), 1fr));
+      gap:12px;
+    }
+
+    .card{
+      position:relative;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
+      padding:10px;
+      cursor:pointer;
+      overflow:hidden;
+    }
+
+    .card.removed{
+      opacity:.35;
+      filter:grayscale(1);
+      cursor:not-allowed;
+    }
+
+    .imgWrap{
+      height:78px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:rgba(0,0,0,.20);
+      border-radius:12px;
+      overflow:hidden;
+    }
+
+    .card img{
+      max-width:100%;
+      max-height:72px;
+      width:auto;
+      height:auto;
+      object-fit:contain;
+      image-rendering:-webkit-optimize-contrast;
+    }
+
+    .name{ margin-top:8px; font-size:13px; word-break:break-word; }
+    .hint{ font-size:11px; color:var(--muted); margin-top:4px; }
+
+    .badge{
+      position:absolute;
+      top:8px; right:8px;
+      font-size:11px;
+      padding:3px 7px;
+      border-radius:999px;
+      background:rgba(239,68,68,.20);
+      border:1px solid rgba(239,68,68,.40);
+    }
+
+    .toast{
+      position:fixed;
+      bottom:20px;
+      left:50%;
+      transform:translateX(-50%);
+      background:rgba(17,17,17,.95);
+      border:1px solid var(--border);
+      padding:8px 14px;
+      border-radius:999px;
+      opacity:0;
+      transition:.2s;
+      max-width:calc(100vw - 32px);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      pointer-events:none;
+    }
+    .toast.show{ opacity:1; }
+
+    .footerNote{
+      text-align:center;
+      font-size:12px;
+      color:var(--muted);
+      margin-top:14px;
+    }
+  </style>
 </head>
 
 <body>
-<header>
-  <div class="topbar">
-    <div class="titleRow">
-      <h1>Niisa 7TV Emote Suche</h1>
-      <div class="counter" id="counter">–</div>
+  <header>
+    <div class="topbar">
+      <div class="titleRow">
+        <h1>Niisa 7TV Emote Suche</h1>
+        <div class="counter" id="counter">–</div>
+      </div>
+      <div class="counter" id="lastUpdate"></div>
+
+      <div class="searchWrap">
+        <input id="search" autocomplete="off" spellcheck="false" placeholder="Tags suchen (z. B. katze, yoink)" />
+      </div>
+
+      <!-- aktive Filter -->
+      <div class="chips" id="chips"></div>
+      <!-- Vorschläge -->
+      <div class="chips" id="suggestions"></div>
     </div>
-    <div class="counter" id="lastUpdate"></div>
+  </header>
 
-    <div class="searchWrap">
-      <input id="search" placeholder="Tags suchen (z. B. katze, yoink)" />
-    </div>
+  <main class="wrap">
+    <div class="grid" id="grid"></div>
+    <div class="footerNote">Klick kopiert den Emote-Namen (nur aktive Emotes).</div>
+  </main>
 
-    <div class="chips" id="chips"></div>
-    <div class="chips" id="suggestions"></div>
-  </div>
-</header>
+  <div class="toast" id="toast">Kopiert</div>
 
-<main class="wrap">
-  <div class="grid" id="grid"></div>
-  <div class="footerNote">Klick kopiert den Emote-Namen (nur aktive Emotes)</div>
-</main>
+  <script>
+    // 1) Manuelle Vorschläge (werden zuerst angezeigt)
+    const MANUAL_SUGGESTIONS = [
+      "cat",
+      "hug",
+      "sad",
+      "love",
+      "dance",
+      "music",
+      "angry",
+      "blush",
+      "happy",
+      "snack"
+    ];
 
-<div class="toast" id="toast">Kopiert</div>
+    // 2) Google Sheet Feed
+    const SHEET_ID = "1RvasLLCoS_XqJXmqr-HUsfY0ffpfRqPg7efCmSWLIYE";
+    const SHEET_NAME = "Emotes";
+    const FEED_URL = `https://opensheet.elk.sh/${SHEET_ID}/${encodeURIComponent(SHEET_NAME)}`;
 
-<script>
-const SHEET_ID="1RvasLLCoS_XqJXmqr-HUsfY0ffpfRqPg7efCmSWLIYE";
-const SHEET_NAME="Emotes";
-const FEED_URL=`https://opensheet.elk.sh/${SHEET_ID}/${encodeURIComponent(SHEET_NAME)}`;
+    let emotes = [];
+    let activeTerms = [];
 
-let emotes=[], activeTerms=[];
-
-const els={
-  search:document.getElementById("search"),
-  grid:document.getElementById("grid"),
-  counter:document.getElementById("counter"),
-  chips:document.getElementById("chips"),
-  suggestions:document.getElementById("suggestions"),
-  toast:document.getElementById("toast"),
-  lastUpdate:document.getElementById("lastUpdate")
-};
-
-function normalize(str){
-  return str.toLowerCase().split(/[, ]+/).filter(Boolean);
-}
-
-function showToast(t){
-  els.toast.textContent=t;
-  els.toast.classList.add("show");
-  setTimeout(()=>els.toast.classList.remove("show"),1200);
-}
-
-function copy(text){
-  navigator.clipboard.writeText(text).then(()=>showToast(`"${text}" kopiert`));
-}
-
-function renderChips(){
-  els.chips.innerHTML = "";
-
-  activeTerms.forEach(term => {
-    const chip = document.createElement("span");
-    chip.className = "chip";
-
-    chip.innerHTML = `
-      <span>${term}</span>
-      <span class="close" title="Entfernen">×</span>
-    `;
-
-    // ❌ Klick auf das X entfernt den Tag
-    chip.querySelector(".close").onclick = (e) => {
-      e.stopPropagation(); // verhindert Missclicks
-      activeTerms = activeTerms.filter(t => t !== term);
-      applyFilter();
+    const els = {
+      search: document.getElementById("search"),
+      grid: document.getElementById("grid"),
+      counter: document.getElementById("counter"),
+      chips: document.getElementById("chips"),
+      suggestions: document.getElementById("suggestions"),
+      toast: document.getElementById("toast"),
+      lastUpdate: document.getElementById("lastUpdate")
     };
 
-    els.chips.appendChild(chip);
-  });
-}
+    function normalize(str){
+      return String(str || "")
+        .toLowerCase()
+        .split(/[, ]+/)
+        .map(t => t.trim())
+        .filter(Boolean);
+    }
 
+    function showToast(text){
+      els.toast.textContent = text;
+      els.toast.classList.add("show");
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => els.toast.classList.remove("show"), 1200);
+    }
 
-function renderSuggestions(){
-  els.suggestions.innerHTML="";
-  const freq={};
-  emotes.forEach(e=>{
-    e.tags.split(",").forEach(t=>{
-      t=t.trim();
-      if(t.length<2||activeTerms.includes(t))return;
-      freq[t]=(freq[t]||0)+1;
+    function copyToClipboard(text){
+      navigator.clipboard.writeText(text)
+        .then(() => showToast(`"${text}" kopiert`))
+        .catch(() => showToast("Kopieren nicht möglich"));
+    }
+
+    function renderChips(){
+      els.chips.innerHTML = "";
+
+      activeTerms.forEach(term => {
+        const chip = document.createElement("span");
+        chip.className = "chip";
+        chip.innerHTML = `<span>${term}</span><span class="close" title="Entfernen" aria-label="Entfernen">×</span>`;
+
+        chip.querySelector(".close").onclick = (e) => {
+          e.stopPropagation();
+          activeTerms = activeTerms.filter(t => t !== term);
+          syncSearchInput();
+          applyFilter();
+        };
+
+        els.chips.appendChild(chip);
+      });
+    }
+
+    function renderSuggestions(){
+      els.suggestions.innerHTML = "";
+
+      const MAX = 15;
+      const added = new Set();
+
+      // A) Manuelle Vorschläge zuerst (in fester Reihenfolge)
+      MANUAL_SUGGESTIONS.forEach(tag => {
+        tag = String(tag || "").toLowerCase().trim();
+        if (!tag) return;
+        if (activeTerms.includes(tag)) return;
+        if (added.has(tag)) return;
+
+        const c = document.createElement("span");
+        c.className = "chip";
+        c.textContent = tag;
+        c.onclick = () => {
+          if (!activeTerms.includes(tag)) activeTerms.push(tag);
+          syncSearchInput();
+          applyFilter();
+        };
+
+        els.suggestions.appendChild(c);
+        added.add(tag);
+      });
+
+      if (added.size >= MAX) return;
+
+      // B) Auto-Füllung mit häufigsten Tags (ohne Duplikate)
+      const freq = {};
+      emotes.forEach(e => {
+        (e.tags || "").split(",").forEach(t => {
+          t = t.trim();
+          if (t.length < 2) return;
+          if (activeTerms.includes(t)) return;
+          if (added.has(t)) return;
+          freq[t] = (freq[t] || 0) + 1;
+        });
+      });
+
+      Object.entries(freq)
+        .sort((a,b) => b[1] - a[1])
+        .slice(0, MAX - added.size)
+        .forEach(([tag]) => {
+          const c = document.createElement("span");
+          c.className = "chip";
+          c.textContent = tag;
+          c.onclick = () => {
+            if (!activeTerms.includes(tag)) activeTerms.push(tag);
+            syncSearchInput();
+            applyFilter();
+          };
+          els.suggestions.appendChild(c);
+        });
+    }
+
+    function syncSearchInput(){
+      els.search.value = activeTerms.join(", ");
+    }
+
+    function applyFilter(){
+      const list = activeTerms.length
+        ? emotes.filter(e => activeTerms.every(t => (e.tags || "").includes(t)))
+        : emotes;
+
+      els.grid.innerHTML = "";
+
+      if (!list.length){
+        const msg = document.createElement("div");
+        msg.className = "counter";
+        msg.textContent = "Keine Treffer. Versuch andere Tags.";
+        els.grid.appendChild(msg);
+      } else {
+        list.forEach(e => {
+          const card = document.createElement("div");
+          card.className = "card" + (e.active ? "" : " removed");
+          card.innerHTML = `
+            ${e.active ? "" : `<div class="badge">Entfernt</div>`}
+            <div class="imgWrap"><img loading="lazy" src="${e.img}" alt="${e.name}"></div>
+            <div class="name">${e.name}</div>
+            <div class="hint">${e.active ? "Click to copy" : "Entfernt"}</div>
+          `;
+          if (e.active) card.onclick = () => copyToClipboard(e.name);
+          els.grid.appendChild(card);
+        });
+      }
+
+      els.counter.textContent = `${list.length} / ${emotes.length}`;
+      renderChips();
+      renderSuggestions();
+    }
+
+    // Events
+    els.search.addEventListener("input", () => {
+      activeTerms = normalize(els.search.value);
+      applyFilter();
     });
-  });
-  Object.entries(freq)
-    .sort((a,b)=>b[1]-a[1])
-    .slice(0,20)
-    .forEach(([tag])=>{
-      const c=document.createElement("span");
-      c.className="chip";
-      c.textContent=tag;
-      c.onclick=()=>{
-        activeTerms.push(tag);
+
+    // Load data
+    fetch(FEED_URL)
+      .then(r => {
+        if (!r.ok) throw new Error("Feed error: " + r.status);
+        return r.json();
+      })
+      .then(rows => {
+        if (rows?.length && rows[0].updated_at) {
+          els.lastUpdate.textContent = `Daten zuletzt aktualisiert: ${rows[0].updated_at}`;
+        } else {
+          els.lastUpdate.textContent = "";
+        }
+
+        emotes = (rows || []).map(r => ({
+          name: r.emote_name || "",
+          img: r.image_url || "",
+          tags: String(r.tags || "").toLowerCase(), // wichtig: tags kommen schon als "a, b, c"
+          active: String(r.active ?? "TRUE").toUpperCase() === "TRUE"
+        })).filter(e => e.name && e.img);
+
         applyFilter();
-      };
-      els.suggestions.appendChild(c);
-    });
-}
-
-function applyFilter(){
-  const list=activeTerms.length
-    ? emotes.filter(e=>activeTerms.every(t=>e.tags.includes(t)))
-    : emotes;
-
-  els.grid.innerHTML="";
-  list.forEach(e=>{
-    const d=document.createElement("div");
-    d.className="card"+(e.active?"":" removed");
-    d.innerHTML=`
-      ${e.active?"":"<div class='badge'>Entfernt</div>"}
-      <div class="imgWrap"><img src="${e.img}"></div>
-      <div class="name">${e.name}</div>
-      <div class="hint">${e.active?"Click to copy":"Entfernt"}</div>
-    `;
-    if(e.active)d.onclick=()=>copy(e.name);
-    els.grid.appendChild(d);
-  });
-
-  els.counter.textContent=`${list.length} / ${emotes.length}`;
-  renderChips();
-  renderSuggestions();
-}
-
-els.search.addEventListener("input",()=>{
-  activeTerms=normalize(els.search.value);
-  applyFilter();
-});
-
-fetch(FEED_URL)
-.then(r=>r.json())
-.then(rows=>{
-  if(rows[0]?.updated_at){
-    els.lastUpdate.textContent=`Daten zuletzt aktualisiert: ${rows[0].updated_at}`;
-  }
-  emotes=rows.map(r=>({
-    name:r.emote_name,
-    img:r.image_url,
-    tags:(r.tags||"").toLowerCase(),
-    active:String(r.active).toUpperCase()==="TRUE"
-  })).filter(e=>e.name&&e.img);
-
-  applyFilter();
-});
-</script>
+      })
+      .catch(err => {
+        console.error(err);
+        els.grid.innerHTML = "";
+        const msg = document.createElement("div");
+        msg.className = "counter";
+        msg.textContent = "Konnte Emotes nicht laden (opensheet down? Sheet privat? Tabname falsch?).";
+        els.grid.appendChild(msg);
+        els.counter.textContent = "–";
+      });
+  </script>
 </body>
 </html>
