@@ -90,6 +90,93 @@
 
     .wrap{ max-width:1100px; margin:0 auto; padding:16px; }
 
+    /* --- Randomizer styles --- */
+    .randomBox{
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+    .randomHeader{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .randomTitle{
+      font-size:13px;
+      color: rgba(255,255,255,.85);
+      font-weight:700;
+      letter-spacing:.2px;
+    }
+    .randomBtn{
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.08);
+      color: rgba(255,255,255,.92);
+      border-radius: 12px;
+      padding: 10px 10px;
+      cursor: pointer;
+      font-size: 12px;  
+    }
+    .randomBtn:hover{ background: rgba(255,255,255,.12); }
+    .randomBtn:active{ transform: translateY(1px); }
+
+    .randomContent{ display:grid; gap:10px; }
+    .randomPreview{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    .randomImgWrap{
+      width: 92px;
+      height: 72px;
+      border-radius: 12px;
+      background: rgba(0,0,0,.20);
+      border: 1px solid rgba(255,255,255,.10);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      flex: 0 0 auto;
+    }
+    .randomImgWrap img{
+      max-width:100%;
+      max-height:66px;
+      width:auto;
+      height:auto;
+      object-fit:contain;
+      image-rendering:-webkit-optimize-contrast;
+    }
+    .randomMeta{ min-width:0; }
+    .randomName{
+      font-size:14px;
+      font-weight:700;
+      word-break:break-word;
+      cursor:pointer;
+      display:inline-block;
+    }
+    .randomName:hover{ text-decoration: underline; }
+    .randomHint{
+      margin-top:4px;
+      font-size:11px;
+      color: var(--muted);
+    }
+    .randomTags{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .randomTags .chip{
+      background:rgba(34,211,238,.14);
+      border-color:rgba(34,211,238,.30);
+    }
+
+    /* Hide randomizer when filtering */
+    .randomBox.isHidden{ display:none; }
+    /* --- end randomizer --- */
+
     .grid{
       display:grid;
       grid-template-columns:repeat(auto-fill, minmax(var(--cardMin), 1fr));
@@ -193,6 +280,28 @@
   </header>
 
   <main class="wrap">
+    <!-- Randomizer -->
+    <section class="randomBox" id="randomBox" aria-live="polite">
+      <div class="randomHeader">
+        <div class="randomTitle">🎲 Zufalls-Emote</div>
+        <button class="randomBtn" id="randomBtn" type="button">Nochmal</button>
+      </div>
+
+      <div class="randomContent">
+        <div class="randomPreview" id="randomPreview">
+          <div class="randomImgWrap">
+            <img id="randomImg" alt="Zufalls-Emote" loading="lazy" />
+          </div>
+          <div class="randomMeta">
+            <div class="randomName" id="randomName">–</div>
+            <div class="randomHint">Klick auf den Namen kopiert ihn.</div>
+          </div>
+        </div>
+
+        <div class="randomTags" id="randomTags"></div>
+      </div>
+    </section>
+
     <div class="grid" id="grid"></div>
     <div class="footerNote">Klick kopiert den Emote-Namen (nur aktive Emotes).</div>
   </main>
@@ -229,7 +338,14 @@
       chips: document.getElementById("chips"),
       suggestions: document.getElementById("suggestions"),
       toast: document.getElementById("toast"),
-      lastUpdate: document.getElementById("lastUpdate")
+      lastUpdate: document.getElementById("lastUpdate"),
+
+      // Randomizer elements
+      randomBox: document.getElementById("randomBox"),
+      randomBtn: document.getElementById("randomBtn"),
+      randomImg: document.getElementById("randomImg"),
+      randomName: document.getElementById("randomName"),
+      randomTags: document.getElementById("randomTags")
     };
 
     function normalize(str){
@@ -278,7 +394,7 @@
       const MAX = 15;
       const added = new Set();
 
-      // A) Manuelle Vorschläge zuerst (in fester Reihenfolge)
+      // A) Manuelle Vorschläge zuerst
       MANUAL_SUGGESTIONS.forEach(tag => {
         tag = String(tag || "").toLowerCase().trim();
         if (!tag) return;
@@ -300,7 +416,7 @@
 
       if (added.size >= MAX) return;
 
-      // B) Auto-Füllung mit häufigsten Tags (ohne Duplikate)
+      // B) Auto-Füllung mit häufigsten Tags
       const freq = {};
       emotes.forEach(e => {
         (e.tags || "").split(",").forEach(t => {
@@ -332,6 +448,74 @@
       els.search.value = activeTerms.join(", ");
     }
 
+    /* --- Randomizer logic --- */
+    function parseTags(tagsStr){
+      return String(tagsStr || "")
+        .split(",")
+        .map(t => t.trim())
+        .filter(Boolean);
+    }
+
+    function pickRandomEmote(){
+      const pool = emotes.filter(e => e.active); // nur aktive Emotes
+      if (!pool.length) return null;
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    function renderRandomTags(tagsArr){
+      els.randomTags.innerHTML = "";
+      if (!tagsArr.length){
+        const empty = document.createElement("div");
+        empty.className = "counter";
+        empty.textContent = "Keine Tags vorhanden.";
+        els.randomTags.appendChild(empty);
+        return;
+      }
+
+      tagsArr.forEach(tag => {
+        const c = document.createElement("span");
+        c.className = "chip";
+        c.textContent = tag;
+
+        // Klick auf Tag => als Filter hinzufügen (und dadurch Randomizer ausblenden)
+        c.onclick = () => {
+          const t = tag.toLowerCase();
+          if (!activeTerms.includes(t)) {
+            activeTerms.push(t);
+            syncSearchInput();
+            applyFilter();
+          }
+        };
+
+        els.randomTags.appendChild(c);
+      });
+    }
+
+    function updateRandom(){
+      const e = pickRandomEmote();
+      if (!e){
+        els.randomName.textContent = "Keine Emotes verfügbar";
+        els.randomImg.removeAttribute("src");
+        els.randomTags.innerHTML = "";
+        return;
+      }
+
+      els.randomImg.src = e.img;
+      els.randomImg.alt = e.name;
+
+      els.randomName.textContent = e.name;
+      els.randomName.onclick = () => copyToClipboard(e.name);
+
+      const tagsArr = parseTags(e.tags);
+      renderRandomTags(tagsArr);
+    }
+
+    function updateRandomVisibility(){
+      // sobald irgendein Filter aktiv ist (Suche oder Klick-Tag), Randomizer ausblenden
+      els.randomBox.classList.toggle("isHidden", activeTerms.length > 0);
+    }
+    /* --- end randomizer --- */
+
     function applyFilter(){
       const list = activeTerms.length
         ? emotes.filter(e => activeTerms.every(t => (e.tags || "").includes(t)))
@@ -362,6 +546,7 @@
       els.counter.textContent = `${list.length} / ${emotes.length}`;
       renderChips();
       renderSuggestions();
+      updateRandomVisibility();
     }
 
     // Events
@@ -369,6 +554,8 @@
       activeTerms = normalize(els.search.value);
       applyFilter();
     });
+
+    els.randomBtn.addEventListener("click", updateRandom);
 
     // Load data
     fetch(FEED_URL)
@@ -386,11 +573,13 @@
         emotes = (rows || []).map(r => ({
           name: r.emote_name || "",
           img: r.image_url || "",
-          tags: String(r.tags || "").toLowerCase(), // wichtig: tags kommen schon als "a, b, c"
+          tags: String(r.tags || "").toLowerCase(),
           active: String(r.active ?? "TRUE").toUpperCase() === "TRUE"
         })).filter(e => e.name && e.img);
 
-        applyFilter();
+        applyFilter();      // <-- FIX: korrekt aufrufen
+        updateRandom();     // initiales Random Emote setzen
+        updateRandomVisibility(); // sichtbar, solange keine Filter aktiv
       })
       .catch(err => {
         console.error(err);
