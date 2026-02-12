@@ -543,7 +543,12 @@
         });
       }
 
-      els.counter.textContent = `${list.length} / ${emotes.length}`;
+      // nur aktive Emotes zählen
+const totalActive = emotes.filter(e => e.active).length;
+const shownActive = list.filter(e => e.active).length;
+
+els.counter.textContent = `${shownActive} / ${totalActive}`;
+      
       renderChips();
       renderSuggestions();
       updateRandomVisibility();
