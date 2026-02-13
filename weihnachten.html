@@ -1,78 +1,559 @@
-function update7TVEmoteSetWeihnachten() {
-  const SET_ID = "01GJX0YHGG0008Q1AKMSA5SV6V";
-  const SHEET_NAME = "EmotesWeihnachten";
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Niisa 7TV Emote Suche</title>
 
-  const ss = SpreadsheetApp.getActive();
-  const sheet = ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
+  <style>
+    :root{
+      /* Christmas palette */
+      --bg:#07090f;
+      --text:rgba(255,255,255,.93);
+      --muted:rgba(255,255,255,.65);
+      --border:rgba(255,255,255,.14);
 
-  // Header sicherstellen (A–H)
-  if (sheet.getLastRow() === 0) {
-    sheet.getRange(1, 1, 1, 8).setValues([[
-      "emote_id", "emote_name", "image_url", "preview", "tags", "updated_at", "tags_clean", "active"
-    ]]);
-  } else {
-    // Falls "active" noch fehlt, hinzufügen (nur wenn G schon existiert)
-    const lastCol = sheet.getLastColumn();
-    const headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0].map(x => String(x || "").trim());
-    if (!headers.includes("active")) {
-      sheet.getRange(1, lastCol + 1).setValue("active");
+      --accent:#e11d48;      /* red */
+      --accent2:#22c55e;     /* green */
+      --gold:#fbbf24;        /* gold */
+      --ice:#22d3ee;         /* icy cyan */
+
+      --radius:18px;
+      --cardMin:120px;
+
+      --glass: rgba(255,255,255,.07);
+      --glass2: rgba(255,255,255,.10);
+      --shadow: 0 14px 44px rgba(0,0,0,.55);
     }
-  }
 
-  const lastRow = sheet.getLastRow();
-  const now = new Date();
+    *{ box-sizing:border-box; }
+    html, body { height:100%; }
 
-  // Vorhandene IDs -> Zeilennummer (und alle erstmal inactive setzen)
-  const existing = new Map();
-  if (lastRow >= 2) {
-    const ids = sheet.getRange(2, 1, lastRow - 1, 1).getValues().flat();
-    ids.forEach((id, idx) => { if (id) existing.set(String(id), idx + 2); });
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--text);
 
-    // H = active -> alles auf FALSE setzen
-    sheet.getRange(2, 8, lastRow - 1, 1).setValue(false);
-  }
+      /* Festive background: aurora + subtle texture + vignette */
+      background:
+        radial-gradient(1200px 700px at 15% -10%, rgba(225,29,72,.24), transparent 62%),
+        radial-gradient(1050px 520px at 90% 8%, rgba(34,197,94,.18), transparent 58%),
+        radial-gradient(900px 500px at 50% 115%, rgba(251,191,36,.12), transparent 60%),
+        radial-gradient(900px 600px at 40% 30%, rgba(34,211,238,.09), transparent 60%),
+        linear-gradient(to bottom, rgba(0,0,0,.20), rgba(0,0,0,.55)),
+        var(--bg);
 
-  // 7TV Set laden
-  const url = `https://7tv.io/v3/emote-sets/${SET_ID}`;
-  const res = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
-  if (res.getResponseCode() !== 200) {
-    throw new Error(`7TV API Fehler (${res.getResponseCode()}): ${res.getContentText()}`);
-  }
-  const data = JSON.parse(res.getContentText());
-  const emotes = data.emotes || data.items || [];
-
-  emotes.forEach((e) => {
-    const id = String(e.id);
-    const name = e.name;
-    const imageUrl = `https://cdn.7tv.app/emote/${id}/4x.webp`;
-
-    if (existing.has(id)) {
-      const r = existing.get(id);
-
-      // A–C aktualisieren
-      sheet.getRange(r, 1, 1, 3).setValues([[id, name, imageUrl]]);
-
-      // F = updated_at (last_sync)
-      sheet.getRange(r, 6).setValue(now);
-
-      // H = active
-      sheet.getRange(r, 8).setValue(true);
-
-      // D/E/G unangetastet (preview/tags/tags_clean)
-    } else {
-      // Neue Zeile
-      const newRow = sheet.getLastRow() + 1;
-
-      sheet.getRange(newRow, 1, 1, 8).setValues([[
-        id,
-        name,
-        imageUrl,
-        `=IMAGE(C${newRow}; 4; 64; 64)`,
-        "",
-        now,
-        `=REGEXREPLACE(LOWER(E${newRow});"\\s+";"")`,
-        true
-      ]]);
+      background-repeat:no-repeat;
+      background-size:100% 100%;
+      overflow-x:hidden;
     }
-  });
+
+    /* Decorative lights (top border) */
+    header{
+      position:sticky; top:0; z-index:10;
+      padding:14px 16px;
+      backdrop-filter:blur(14px);
+      background:linear-gradient(to bottom, rgba(7,9,15,.92), rgba(7,9,15,.72));
+      border-bottom:1px solid var(--border);
+    }
+    header::before{
+      content:"";
+      position:absolute;
+      left:0; right:0; top:0;
+      height:3px;
+      background: linear-gradient(90deg,
+        rgba(225,29,72,.85),
+        rgba(251,191,36,.85),
+        rgba(34,197,94,.85),
+        rgba(34,211,238,.85),
+        rgba(225,29,72,.85)
+      );
+      filter: blur(.2px);
+      opacity:.95;
+    }
+
+    .topbar{ max-width:1100px; margin:0 auto; display:grid; gap:10px; }
+    .titleRow{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
+
+    h1{
+      font-size:16px;
+      margin:0;
+      letter-spacing:.2px;
+      /* subtle festive glow */
+      text-shadow:
+        0 0 18px rgba(251,191,36,.22),
+        0 0 30px rgba(225,29,72,.12);
+    }
+    .counter{ font-size:12px; color:var(--muted); }
+
+    .searchWrap{ position:relative; }
+
+    input{
+      width:100%;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      font-size:15px;
+      outline:none;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+      transition: border-color .15s, transform .15s, box-shadow .15s, background .15s;
+    }
+    input::placeholder{ color:rgba(255,255,255,.48); }
+    input:focus{
+      border-color: rgba(251,191,36,.55);
+      box-shadow: 0 12px 40px rgba(0,0,0,.45), 0 0 0 4px rgba(251,191,36,.10);
+      background: rgba(255,255,255,.08);
+      transform: translateY(-1px);
+    }
+
+    .chips{ display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
+
+    /* Default chips = red / green candy vibe */
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      background: linear-gradient(180deg, rgba(225,29,72,.18), rgba(225,29,72,.10));
+      border:1px solid rgba(225,29,72,.28);
+      cursor:pointer;
+      user-select:none;
+      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+      box-shadow: 0 10px 24px rgba(0,0,0,.22);
+    }
+    .chip:hover{
+      transform: translateY(-1px);
+      border-color: rgba(251,191,36,.35);
+      background: linear-gradient(180deg, rgba(251,191,36,.16), rgba(225,29,72,.10));
+    }
+
+    .chip .close{
+      font-weight:800;
+      opacity:.8;
+      cursor:pointer;
+      padding-left:4px;
+      line-height:1;
+    }
+    .chip .close:hover{ opacity:1; }
+
+    /* Suggestions chips = green + icy highlight */
+    #suggestions .chip{
+      background: linear-gradient(180deg, rgba(34,197,94,.18), rgba(34,197,94,.10));
+      border-color: rgba(34,197,94,.28);
+    }
+    #suggestions .chip:hover{
+      border-color: rgba(34,211,238,.34);
+      background: linear-gradient(180deg, rgba(34,211,238,.12), rgba(34,197,94,.10));
+    }
+
+    .wrap{ max-width:1100px; margin:0 auto; padding:16px; }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill, minmax(var(--cardMin), 1fr));
+      gap:12px;
+    }
+
+    .card{
+      position:relative;
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.05));
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:18px;
+      padding:10px;
+      cursor:pointer;
+      overflow:hidden;
+      box-shadow: var(--shadow);
+      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+    }
+
+    /* subtle shimmer line on cards */
+    .card::before{
+      content:"";
+      position:absolute;
+      top:-40%;
+      left:-60%;
+      width: 60%;
+      height: 180%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.10), transparent);
+      transform: rotate(20deg);
+      opacity:.0;
+      transition: opacity .18s ease;
+      pointer-events:none;
+    }
+
+    .card:hover{
+      transform: translateY(-2px);
+      border-color: rgba(251,191,36,.32);
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.055));
+    }
+    .card:hover::before{ opacity:.9; }
+
+    .card.removed{
+      opacity:.35;
+      filter:grayscale(1);
+      cursor:not-allowed;
+      box-shadow: 0 10px 24px rgba(0,0,0,.30);
+    }
+    .card.removed:hover{
+      transform:none;
+      border-color: rgba(255,255,255,.12);
+    }
+    .card.removed:hover::before{ opacity:0; }
+
+    .imgWrap{
+      height:78px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:rgba(0,0,0,.20);
+      border-radius:14px;
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,.10);
+    }
+
+    .card img{
+      max-width:100%;
+      max-height:72px;
+      width:auto;
+      height:auto;
+      object-fit:contain;
+      image-rendering:-webkit-optimize-contrast;
+    }
+
+    .name{ margin-top:8px; font-size:13px; word-break:break-word; }
+    .hint{ font-size:11px; color:var(--muted); margin-top:4px; }
+
+    .badge{
+      position:absolute;
+      top:8px; right:8px;
+      font-size:11px;
+      padding:3px 7px;
+      border-radius:999px;
+      background:rgba(225,29,72,.20);
+      border:1px solid rgba(225,29,72,.40);
+      box-shadow: 0 10px 24px rgba(0,0,0,.24);
+    }
+
+    .toast{
+      position:fixed;
+      bottom:20px;
+      left:50%;
+      transform:translateX(-50%) translateY(10px);
+      background:rgba(12,12,14,.92);
+      border:1px solid rgba(255,255,255,.14);
+      padding:8px 14px;
+      border-radius:999px;
+      opacity:0;
+      transition: opacity .18s, transform .18s;
+      max-width:calc(100vw - 32px);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      pointer-events:none;
+      box-shadow: var(--shadow);
+    }
+    .toast.show{
+      opacity:1;
+      transform:translateX(-50%) translateY(0px);
+    }
+
+    .footerNote{
+      text-align:center;
+      font-size:12px;
+      color:var(--muted);
+      margin-top:14px;
+    }
+
+    /* --- Snow overlay (CSS only, lightweight) --- */
+    .snow{
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 5; /* behind header content (z=10), above background */
+      opacity: .55;
+      mix-blend-mode: screen;
+      filter: drop-shadow(0 0 6px rgba(255,255,255,.06));
+    }
+
+    .snow::before,
+    .snow::after{
+      content:"";
+      position:absolute;
+      inset:-200px 0 0 0;
+      background-image:
+        radial-gradient(2px 2px at 10% 20%, rgba(255,255,255,.85) 55%, transparent 56%),
+        radial-gradient(1.5px 1.5px at 30% 40%, rgba(255,255,255,.75) 55%, transparent 56%),
+        radial-gradient(2.5px 2.5px at 70% 15%, rgba(255,255,255,.75) 55%, transparent 56%),
+        radial-gradient(1.2px 1.2px at 90% 35%, rgba(255,255,255,.70) 55%, transparent 56%),
+        radial-gradient(2px 2px at 50% 60%, rgba(255,255,255,.65) 55%, transparent 56%),
+        radial-gradient(1.4px 1.4px at 15% 75%, rgba(255,255,255,.65) 55%, transparent 56%),
+        radial-gradient(2.2px 2.2px at 85% 80%, rgba(255,255,255,.60) 55%, transparent 56%);
+      background-size: 320px 320px;
+      background-repeat: repeat;
+      transform: translateY(-120px);
+      animation: snowFall 14s linear infinite;
+    }
+
+.snow::after{
+  opacity:.55;
+  background-size: 420px 420px;
+  filter: blur(.3px);
+  animation-duration: 26s; /* langsamer = weiter "hinten" */
 }
+
+    @keyframes snowFall{
+      to { transform: translateY(520px); }
+    }
+
+    /* Respect reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      .snow::before, .snow::after { animation: none; }
+      .card, input, .chip { transition: none; }
+    }
+
+    @media (max-width: 520px){
+      :root{ --cardMin:110px; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- NEW: snow overlay (no JS) -->
+  <div class="snow" aria-hidden="true"></div>
+
+  <header>
+    <div class="topbar">
+      <div class="titleRow">
+        <h1>Niisa 7TV Emote Suche - Weihnachten</h1>
+        <div class="counter" id="counter">–</div>
+      </div>
+      <div class="counter" id="lastUpdate"></div>
+
+      <div class="searchWrap">
+        <input id="search" autocomplete="off" spellcheck="false" placeholder="Tags suchen (z. B. katze, yoink)" />
+      </div>
+
+      <!-- aktive Filter -->
+      <div class="chips" id="chips"></div>
+      <!-- Vorschläge -->
+      <div class="chips" id="suggestions"></div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="grid" id="grid"></div>
+    <div class="footerNote">Klick kopiert den Emote-Namen (nur aktive Emotes).</div>
+  </main>
+
+  <div class="toast" id="toast">Kopiert</div>
+
+  <script>
+    // 1) Manuelle Vorschläge (werden zuerst angezeigt)
+    const MANUAL_SUGGESTIONS = [
+      "cat",
+      "hug",
+      "sad",
+      "love",
+      "dance",
+      "music",
+      "angry",
+      "blush",
+      "happy",
+      "snack"
+    ];
+
+    // 2) Google Sheet Feed
+    const SHEET_ID = "1RvasLLCoS_XqJXmqr-HUsfY0ffpfRqPg7efCmSWLIYE";
+    const SHEET_NAME = "EmotesWeihnachten";
+    const FEED_URL = `https://opensheet.elk.sh/${SHEET_ID}/${encodeURIComponent(SHEET_NAME)}`;
+
+    let emotes = [];
+    let activeTerms = [];
+
+    const els = {
+      search: document.getElementById("search"),
+      grid: document.getElementById("grid"),
+      counter: document.getElementById("counter"),
+      chips: document.getElementById("chips"),
+      suggestions: document.getElementById("suggestions"),
+      toast: document.getElementById("toast"),
+      lastUpdate: document.getElementById("lastUpdate")
+    };
+
+    function normalize(str){
+      return String(str || "")
+        .toLowerCase()
+        .split(/[, ]+/)
+        .map(t => t.trim())
+        .filter(Boolean);
+    }
+
+    function showToast(text){
+      els.toast.textContent = text;
+      els.toast.classList.add("show");
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => els.toast.classList.remove("show"), 1200);
+    }
+
+    function copyToClipboard(text){
+      navigator.clipboard.writeText(text)
+       .then(() => showToast(`"${text}" kopiert`))
+        .catch(() => showToast("Kopieren nicht möglich"));
+    }
+
+    function renderChips(){
+      els.chips.innerHTML = "";
+
+      activeTerms.forEach(term => {
+        const chip = document.createElement("span");
+        chip.className = "chip";
+       chip.innerHTML = `<span>${term}</span><span class="close" title="Entfernen" aria-label="Entfernen">×</span>`;
+
+
+        chip.querySelector(".close").onclick = (e) => {
+          e.stopPropagation();
+          activeTerms = activeTerms.filter(t => t !== term);
+          syncSearchInput();
+          applyFilter();
+        };
+
+        els.chips.appendChild(chip);
+      });
+    }
+
+    function renderSuggestions(){
+      els.suggestions.innerHTML = "";
+
+      const MAX = 15;
+      const added = new Set();
+
+      // A) Manuelle Vorschläge zuerst (in fester Reihenfolge)
+      MANUAL_SUGGESTIONS.forEach(tag => {
+        tag = String(tag || "").toLowerCase().trim();
+        if (!tag) return;
+        if (activeTerms.includes(tag)) return;
+        if (added.has(tag)) return;
+
+        const c = document.createElement("span");
+        c.className = "chip";
+        c.textContent = tag;
+        c.onclick = () => {
+          if (!activeTerms.includes(tag)) activeTerms.push(tag);
+          syncSearchInput();
+          applyFilter();
+        };
+
+        els.suggestions.appendChild(c);
+        added.add(tag);
+      });
+
+      if (added.size >= MAX) return;
+
+      // B) Auto-Füllung mit häufigsten Tags (ohne Duplikate)
+      const freq = {};
+      emotes.forEach(e => {
+        (e.tags || "").split(",").forEach(t => {
+          t = t.trim();
+          if (t.length < 2) return;
+          if (activeTerms.includes(t)) return;
+          if (added.has(t)) return;
+          freq[t] = (freq[t] || 0) + 1;
+        });
+      });
+
+      Object.entries(freq)
+        .sort((a,b) => b[1] - a[1])
+        .slice(0, MAX - added.size)
+        .forEach(([tag]) => {
+          const c = document.createElement("span");
+          c.className = "chip";
+          c.textContent = tag;
+          c.onclick = () => {
+            if (!activeTerms.includes(tag)) activeTerms.push(tag);
+            syncSearchInput();
+            applyFilter();
+          };
+          els.suggestions.appendChild(c);
+        });
+    }
+
+    function syncSearchInput(){
+      els.search.value = activeTerms.join(", ");
+    }
+
+    function applyFilter(){
+      const list = activeTerms.length
+        ? emotes.filter(e => activeTerms.every(t => (e.tags || "").includes(t)))
+        : emotes;
+
+      els.grid.innerHTML = "";
+
+      if (!list.length){
+        const msg = document.createElement("div");
+        msg.className = "counter";
+        msg.textContent = "Keine Treffer. Versuch andere Tags.";
+        els.grid.appendChild(msg);
+      } else {
+        list.forEach(e => {
+          const card = document.createElement("div");
+          card.className = "card" + (e.active ? "" : " removed");
+          card.innerHTML = `
+            ${e.active ? "" : `<div class="badge">Entfernt</div>`}
+            <div class="imgWrap"><img loading="lazy" src="${e.img}" alt="${e.name}"></div>
+            <div class="name">${e.name}</div>
+            <div class="hint">${e.active ? "Click to copy" : "Entfernt"}</div>
+          `;
+          if (e.active) card.onclick = () => copyToClipboard(e.name);
+          els.grid.appendChild(card);
+        });
+      }
+
+      els.counter.textContent = `${list.length} / ${emotes.length}`;
+      renderChips();
+      renderSuggestions();
+    }
+
+    // Events
+    els.search.addEventListener("input", () => {
+      activeTerms = normalize(els.search.value);
+      applyFilter();
+    });
+
+    // Load data
+    fetch(FEED_URL)
+      .then(r => {
+        if (!r.ok) throw new Error("Feed error: " + r.status);
+        return r.json();
+      })
+      .then(rows => {
+        if (rows?.length && rows[0].updated_at) {
+          els.lastUpdate.textContent = `Daten zuletzt aktualisiert: ${rows[0].updated_at}`;
+        } else {
+          els.lastUpdate.textContent = "";
+        }
+
+        emotes = (rows || []).map(r => ({
+          name: r.emote_name || "",
+          img: r.image_url || "",
+          tags: String(r.tags || "").toLowerCase(),
+          active: String(r.active ?? "TRUE").toUpperCase() === "TRUE"
+        })).filter(e => e.name && e.img);
+
+        applyFilter();
+      })
+      .catch(err => {
+        console.error(err);
+        els.grid.innerHTML = "";
+        const msg = document.createElement("div");
+        msg.className = "counter";
+        msg.textContent = "Konnte Emotes nicht laden (opensheet down? Sheet privat? Tabname falsch?).";
+        els.grid.appendChild(msg);
+        els.counter.textContent = "–";
+      });
+  </script>
+</body>
+</html>
