@@ -1,32 +1,11 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-
-  <a href="auchNiisa.html" class="navBtn">Zur auchNiisa Watchparties Seite</a>
-
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Niisa 7TV Emote Suche</title>
 
   <style>
-
-    .navBtn{
-  display:inline-block;
-  padding:8px 14px;
-  border-radius:12px;
-  background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.15);
-  color:white;
-  text-decoration:none;
-  font-size:13px;
-  transition:.15s;
-}
-
-.navBtn:hover{
-  background:rgba(255,255,255,.15);
-}
-
-    
     :root{
       --bg:#0b0c10;
       --text:rgba(255,255,255,.92);
@@ -63,9 +42,26 @@
     }
 
     .topbar{ max-width:1100px; margin:0 auto; display:grid; gap:10px; }
-    .titleRow{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
+    .titleRow{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap; }
+    .titleLeft{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
     h1{ font-size:16px; margin:0; }
     .counter{ font-size:12px; color:var(--muted); }
+
+    .navBtn{
+      display:inline-block;
+      padding:8px 14px;
+      border-radius:12px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.15);
+      color:white;
+      text-decoration:none;
+      font-size:13px;
+      transition:.15s;
+    }
+
+    .navBtn:hover{
+      background:rgba(255,255,255,.15);
+    }
 
     .searchWrap{ position:relative; }
     input{
@@ -111,6 +107,140 @@
 
     .wrap{ max-width:1100px; margin:0 auto; padding:16px; }
 
+    .topEmotesBox{
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+
+    .topEmotesToggle{
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:0;
+      background:none;
+      border:none;
+      color:inherit;
+      cursor:pointer;
+      text-align:left;
+    }
+
+    .topEmotesTitleWrap{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      min-width:0;
+    }
+
+    .topEmotesTitle{
+      font-size:13px;
+      color: rgba(255,255,255,.85);
+      font-weight:700;
+      letter-spacing:.2px;
+    }
+
+    .topEmotesSub{
+      font-size:11px;
+      color: var(--muted);
+    }
+
+    .topEmotesArrow{
+      font-size:18px;
+      line-height:1;
+      color:var(--muted);
+      transition:transform .18s ease;
+      flex:0 0 auto;
+    }
+
+    .topEmotesBox.isOpen .topEmotesArrow{
+      transform:rotate(180deg);
+    }
+
+    .topEmotesPanel{
+      margin-top:10px;
+    }
+
+    .topEmotesList{
+      display:grid;
+      gap:8px;
+    }
+
+    .topEmoteRow{
+      display:grid;
+      grid-template-columns: 34px 52px 1fr auto;
+      align-items:center;
+      gap:10px;
+      padding:8px 10px;
+      border-radius:12px;
+      background: rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .topEmoteRank{
+      font-size:13px;
+      color: var(--muted);
+      font-weight:700;
+    }
+
+    .topEmoteImgWrap{
+      width:44px;
+      height:36px;
+      border-radius:10px;
+      background: rgba(0,0,0,.20);
+      border: 1px solid rgba(255,255,255,.10);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+    }
+
+    .topEmoteImgWrap img{
+      max-width:100%;
+      max-height:32px;
+      width:auto;
+      height:auto;
+      object-fit:contain;
+      image-rendering:-webkit-optimize-contrast;
+    }
+
+    .topEmoteNameWrap{
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+      min-width:0;
+    }
+
+    .topEmoteName{
+      font-size:13px;
+      font-weight:700;
+      word-break:break-word;
+      cursor:pointer;
+    }
+
+    .topEmoteName:hover{
+      text-decoration:underline;
+    }
+
+    .topEmoteAlias{
+      font-size:11px;
+      color:var(--muted);
+      word-break:break-word;
+    }
+
+    .topEmoteCount{
+      font-size:12px;
+      color: var(--muted);
+      white-space:nowrap;
+    }
+
+    .topEmoteMissing{
+      opacity:.7;
+    }
+
     /* --- Randomizer styles --- */
     .randomBox{
       border: 1px solid rgba(255,255,255,.12);
@@ -139,7 +269,7 @@
       border-radius: 12px;
       padding: 10px 10px;
       cursor: pointer;
-      font-size: 12px;  
+      font-size: 12px;
     }
     .randomBtn:hover{ background: rgba(255,255,255,.12); }
     .randomBtn:active{ transform: translateY(1px); }
@@ -194,7 +324,6 @@
       border-color:rgba(34,211,238,.30);
     }
 
-    /* Hide randomizer when filtering */
     .randomBox.isHidden{ display:none; }
     /* --- end randomizer --- */
 
@@ -277,6 +406,17 @@
       color:var(--muted);
       margin-top:14px;
     }
+
+    @media (max-width: 640px){
+      .topEmoteRow{
+        grid-template-columns: 28px 44px 1fr;
+      }
+
+      .topEmoteCount{
+        grid-column: 3;
+        justify-self:start;
+      }
+    }
   </style>
 </head>
 
@@ -284,24 +424,39 @@
   <header>
     <div class="topbar">
       <div class="titleRow">
-        <h1>Niisa 7TV Emote Suche</h1>
+        <div class="titleLeft">
+          <h1>Niisa 7TV Emote Suche</h1>
+          <a href="auchNiisa.html" class="navBtn">Zur auchNiisa Watchparties Seite</a>
+        </div>
         <div class="counter" id="counter">–</div>
       </div>
+
       <div class="counter" id="lastUpdate"></div>
 
       <div class="searchWrap">
         <input id="search" autocomplete="off" spellcheck="false" placeholder="Tags suchen (z. B. katze, yoink)" />
       </div>
 
-      <!-- aktive Filter -->
       <div class="chips" id="chips"></div>
-      <!-- Vorschläge -->
       <div class="chips" id="suggestions"></div>
     </div>
   </header>
 
   <main class="wrap">
-    <!-- Randomizer -->
+    <section class="topEmotesBox" id="topEmotesBox">
+      <button class="topEmotesToggle" id="topEmotesToggle" type="button" aria-expanded="false">
+        <div class="topEmotesTitleWrap">
+          <div class="topEmotesTitle">🔥 Top 10 7TV Emotes</div>
+          <div class="topEmotesSub" id="topEmotesStatus">Lade …</div>
+        </div>
+        <div class="topEmotesArrow" id="topEmotesArrow">▾</div>
+      </button>
+
+      <div class="topEmotesPanel" id="topEmotesPanel" hidden>
+        <div class="topEmotesList" id="topEmotesList"></div>
+      </div>
+    </section>
+
     <section class="randomBox" id="randomBox" aria-live="polite">
       <div class="randomHeader">
         <div class="randomTitle">🎲 Zufalls-Emote</div>
@@ -330,7 +485,6 @@
   <div class="toast" id="toast">Kopiert</div>
 
   <script>
-    // 1) Manuelle Vorschläge (werden zuerst angezeigt)
     const MANUAL_SUGGESTIONS = [
       "cat",
       "hug",
@@ -344,10 +498,10 @@
       "snack"
     ];
 
-    // 2) Google Sheet Feed
     const SHEET_ID = "1RvasLLCoS_XqJXmqr-HUsfY0ffpfRqPg7efCmSWLIYE";
     const SHEET_NAME = "Emotes";
     const FEED_URL = `https://opensheet.elk.sh/${SHEET_ID}/${encodeURIComponent(SHEET_NAME)}`;
+    const STATS_URL = "https://api.streamelements.com/kappa/v2/chatstats/niisa/stats?limit=100";
 
     let emotes = [];
     let activeTerms = [];
@@ -361,7 +515,13 @@
       toast: document.getElementById("toast"),
       lastUpdate: document.getElementById("lastUpdate"),
 
-      // Randomizer elements
+      topEmotesBox: document.getElementById("topEmotesBox"),
+      topEmotesToggle: document.getElementById("topEmotesToggle"),
+      topEmotesPanel: document.getElementById("topEmotesPanel"),
+      topEmotesArrow: document.getElementById("topEmotesArrow"),
+      topEmotesList: document.getElementById("topEmotesList"),
+      topEmotesStatus: document.getElementById("topEmotesStatus"),
+
       randomBox: document.getElementById("randomBox"),
       randomBtn: document.getElementById("randomBtn"),
       randomImg: document.getElementById("randomImg"),
@@ -390,6 +550,12 @@
         .catch(() => showToast("Kopieren nicht möglich"));
     }
 
+    function setTopEmotesOpen(isOpen){
+      els.topEmotesBox.classList.toggle("isOpen", isOpen);
+      els.topEmotesPanel.hidden = !isOpen;
+      els.topEmotesToggle.setAttribute("aria-expanded", String(isOpen));
+    }
+
     function renderChips(){
       els.chips.innerHTML = "";
 
@@ -415,7 +581,6 @@
       const MAX = 15;
       const added = new Set();
 
-      // A) Manuelle Vorschläge zuerst
       MANUAL_SUGGESTIONS.forEach(tag => {
         tag = String(tag || "").toLowerCase().trim();
         if (!tag) return;
@@ -437,7 +602,6 @@
 
       if (added.size >= MAX) return;
 
-      // B) Auto-Füllung mit häufigsten Tags
       const freq = {};
       emotes.forEach(e => {
         (e.tags || "").split(",").forEach(t => {
@@ -469,7 +633,6 @@
       els.search.value = activeTerms.join(", ");
     }
 
-    /* --- Randomizer logic --- */
     function parseTags(tagsStr){
       return String(tagsStr || "")
         .split(",")
@@ -478,7 +641,7 @@
     }
 
     function pickRandomEmote(){
-      const pool = emotes.filter(e => e.active); // nur aktive Emotes
+      const pool = emotes.filter(e => e.active);
       if (!pool.length) return null;
       return pool[Math.floor(Math.random() * pool.length)];
     }
@@ -498,7 +661,6 @@
         c.className = "chip";
         c.textContent = tag;
 
-        // Klick auf Tag => als Filter hinzufügen (und dadurch Randomizer ausblenden)
         c.onclick = () => {
           const t = tag.toLowerCase();
           if (!activeTerms.includes(t)) {
@@ -532,10 +694,8 @@
     }
 
     function updateRandomVisibility(){
-      // sobald irgendein Filter aktiv ist (Suche oder Klick-Tag), Randomizer ausblenden
       els.randomBox.classList.toggle("isHidden", activeTerms.length > 0);
     }
-    /* --- end randomizer --- */
 
     function applyFilter(){
       const list = activeTerms.length
@@ -564,18 +724,115 @@
         });
       }
 
-      // nur aktive Emotes zählen
-const totalActive = emotes.filter(e => e.active).length;
-const shownActive = list.filter(e => e.active).length;
+      const totalActive = emotes.filter(e => e.active).length;
+      const shownActive = list.filter(e => e.active).length;
 
-els.counter.textContent = `${shownActive} / ${totalActive}`;
-      
+      els.counter.textContent = `${shownActive} / ${totalActive}`;
+
       renderChips();
       renderSuggestions();
       updateRandomVisibility();
     }
 
-    // Events
+    async function loadTopEmotes(){
+      try{
+        els.topEmotesStatus.textContent = "Lade …";
+
+        const res = await fetch(STATS_URL);
+        if (!res.ok) throw new Error("Stats error: " + res.status);
+
+        const data = await res.json();
+        const rawTop = (data.sevenTVEmotes || []).slice(0, 20);
+
+        const emoteMap = new Map(
+          emotes.map(e => [String(e.name || "").toLowerCase().trim(), e])
+        );
+
+        const mergedMap = new Map();
+
+        rawTop.forEach((item, index) => {
+          const rawName = String(item.emote || item.name || item.code || "").trim();
+          const count = Number(item.amount ?? item.count ?? item.uses ?? 0);
+          const match = emoteMap.get(rawName.toLowerCase());
+
+          const mergeKey = match?.id
+            ? `id:${match.id}`
+            : `name:${rawName.toLowerCase()}`;
+
+          if (!mergedMap.has(mergeKey)) {
+            mergedMap.set(mergeKey, {
+              rankHint: index,
+              name: match?.name || rawName,
+              count: 0,
+              img: match?.img || "",
+              active: !!match?.active,
+              foundInSheet: !!match,
+              aliases: new Set(),
+              mergeKey
+            });
+          }
+
+          const entry = mergedMap.get(mergeKey);
+          entry.count += count;
+          entry.aliases.add(rawName);
+
+          if (!entry.img && match?.img) entry.img = match.img;
+          if (!entry.foundInSheet && match) entry.foundInSheet = true;
+          if (!entry.active && match?.active) entry.active = true;
+          if (!entry.name && (match?.name || rawName)) entry.name = match?.name || rawName;
+          if (index < entry.rankHint) entry.rankHint = index;
+        });
+
+        const top10 = Array.from(mergedMap.values())
+          .sort((a, b) => {
+            if (b.count !== a.count) return b.count - a.count;
+            return a.rankHint - b.rankHint;
+          })
+          .slice(0, 10)
+          .map((entry, i) => ({
+            ...entry,
+            rank: i + 1,
+            aliasList: Array.from(entry.aliases).filter(a => a !== entry.name)
+          }));
+
+        els.topEmotesList.innerHTML = "";
+
+        if (!top10.length){
+          els.topEmotesStatus.textContent = "Keine Daten";
+          els.topEmotesList.innerHTML = `<div class="counter">Keine Top-Emotes gefunden.</div>`;
+          return;
+        }
+
+        top10.forEach(emote => {
+          const row = document.createElement("div");
+          row.className = "topEmoteRow" + (emote.foundInSheet ? "" : " topEmoteMissing");
+
+          row.innerHTML = `
+            <div class="topEmoteRank">#${emote.rank}</div>
+            <div class="topEmoteImgWrap">
+              ${emote.img ? `<img src="${emote.img}" alt="${emote.name}" loading="lazy">` : ""}
+            </div>
+            <div class="topEmoteNameWrap">
+              <div class="topEmoteName">${emote.name}</div>
+              ${emote.aliasList.length ? `<div class="topEmoteAlias">Zusammengefasst: ${emote.aliasList.join(", ")}</div>` : ""}
+            </div>
+            <div class="topEmoteCount">${emote.count.toLocaleString("de-DE")}</div>
+          `;
+
+          const nameEl = row.querySelector(".topEmoteName");
+          nameEl.onclick = () => copyToClipboard(emote.name);
+
+          els.topEmotesList.appendChild(row);
+        });
+
+        els.topEmotesStatus.textContent = "Live aus StreamElements";
+      } catch(err){
+        console.error(err);
+        els.topEmotesStatus.textContent = "Fehler";
+        els.topEmotesList.innerHTML = `<div class="counter">Top-Emotes konnten nicht geladen werden.</div>`;
+      }
+    }
+
     els.search.addEventListener("input", () => {
       activeTerms = normalize(els.search.value);
       applyFilter();
@@ -583,13 +840,19 @@ els.counter.textContent = `${shownActive} / ${totalActive}`;
 
     els.randomBtn.addEventListener("click", updateRandom);
 
-    // Load data
+    els.topEmotesToggle.addEventListener("click", () => {
+      const isOpen = els.topEmotesPanel.hidden;
+      setTopEmotesOpen(isOpen);
+    });
+
+    setTopEmotesOpen(false);
+
     fetch(FEED_URL)
       .then(r => {
         if (!r.ok) throw new Error("Feed error: " + r.status);
         return r.json();
       })
-      .then(rows => {
+      .then(async rows => {
         if (rows?.length && rows[0].updated_at) {
           els.lastUpdate.textContent = `Daten zuletzt aktualisiert: ${rows[0].updated_at}`;
         } else {
@@ -597,15 +860,17 @@ els.counter.textContent = `${shownActive} / ${totalActive}`;
         }
 
         emotes = (rows || []).map(r => ({
+          id: r.emote_id || "",
           name: r.emote_name || "",
           img: r.image_url || "",
           tags: String(r.tags || "").toLowerCase(),
           active: String(r.active ?? "TRUE").toUpperCase() === "TRUE"
         })).filter(e => e.name && e.img);
 
-        applyFilter();      // <-- FIX: korrekt aufrufen
-        updateRandom();     // initiales Random Emote setzen
-        updateRandomVisibility(); // sichtbar, solange keine Filter aktiv
+        applyFilter();
+        updateRandom();
+        updateRandomVisibility();
+        await loadTopEmotes();
       })
       .catch(err => {
         console.error(err);
@@ -615,6 +880,8 @@ els.counter.textContent = `${shownActive} / ${totalActive}`;
         msg.textContent = "Konnte Emotes nicht laden (opensheet down? Sheet privat? Tabname falsch?).";
         els.grid.appendChild(msg);
         els.counter.textContent = "–";
+        els.topEmotesStatus.textContent = "Fehler";
+        els.topEmotesList.innerHTML = `<div class="counter">Top-Emotes konnten nicht geladen werden.</div>`;
       });
   </script>
 </body>
