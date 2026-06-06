@@ -305,10 +305,12 @@
       font-size:14px;
       font-weight:700;
       word-break:break-word;
-      cursor:pointer;
+      cursor:default;
       display:inline-block;
+      user-select:none;
     }
-    .randomName:hover{ text-decoration: underline; }
+    .randomName.isClickable{ cursor:pointer; }
+    .randomName.isClickable:hover{ text-decoration: underline; }
     .randomHint{
       margin-top:4px;
       font-size:11px;
@@ -325,6 +327,203 @@
     }
 
     .randomBox.isHidden{ display:none; }
+
+
+    /* --- Slot-machine upgrade --- */
+    .randomBox{
+      position:relative;
+      overflow:hidden;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.035)),
+        rgba(255,255,255,.06);
+    }
+
+    .randomBox::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:linear-gradient(90deg, transparent, rgba(255,255,255,.20), transparent);
+      transform:translateX(-130%);
+      pointer-events:none;
+    }
+
+    .randomBox.isSpinning::before{
+      animation:slotSweep .55s linear infinite;
+    }
+
+    .randomTitle::after{
+      content:"  Shuffle Mode";
+      color:#ffd166;
+      font-size:11px;
+      font-weight:800;
+      margin-left:8px;
+      letter-spacing:.4px;
+      text-transform:uppercase;
+    }
+
+    .slotBtn{
+      position:relative;
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      min-width:104px;
+      justify-content:center;
+      border:1px solid rgba(255,209,102,.50);
+      background:
+        radial-gradient(circle at 50% 20%, rgba(255,255,255,.26), transparent 28%),
+        linear-gradient(180deg, #ff4d6d, #b5173a 58%, #7a1028);
+      color:white;
+      font-weight:900;
+      letter-spacing:.7px;
+      text-shadow:0 1px 0 rgba(0,0,0,.45);
+      box-shadow:
+        inset 0 2px 0 rgba(255,255,255,.22),
+        0 6px 0 rgba(82,8,26,.95),
+        0 12px 22px rgba(0,0,0,.28);
+      transform:translateY(-3px);
+    }
+
+    .slotBtn:hover{
+      background:
+        radial-gradient(circle at 50% 20%, rgba(255,255,255,.34), transparent 30%),
+        linear-gradient(180deg, #ff5c7a, #c9184a 58%, #861333);
+    }
+
+    .slotBtn:active{
+      transform:translateY(2px);
+      box-shadow:
+        inset 0 2px 0 rgba(255,255,255,.18),
+        0 2px 0 rgba(82,8,26,.95),
+        0 8px 15px rgba(0,0,0,.22);
+    }
+
+    .slotBtn:disabled{
+      opacity:.9;
+      cursor:not-allowed;
+      transform:translateY(0);
+      box-shadow:
+        inset 0 2px 0 rgba(255,255,255,.18),
+        0 3px 0 rgba(82,8,26,.95),
+        0 8px 15px rgba(0,0,0,.22);
+    }
+
+    .slotBtnIcon{
+      filter:drop-shadow(0 1px 0 rgba(0,0,0,.4));
+    }
+
+    .randomImgWrap{
+      position:relative;
+      background:
+        linear-gradient(180deg, rgba(0,0,0,.58), rgba(0,0,0,.24)),
+        rgba(0,0,0,.20);
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.05);
+    }
+
+
+    .slotPlaceholder{
+      position:absolute;
+      inset:7px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:9px;
+      background:
+        radial-gradient(circle at 50% 25%, rgba(255,255,255,.18), transparent 34%),
+        linear-gradient(180deg, rgba(255,255,255,.14), rgba(0,0,0,.18));
+      color:rgba(255,255,255,.86);
+      font-size:42px;
+      font-weight:1000;
+      line-height:1;
+      text-shadow:
+        0 0 10px rgba(255,255,255,.18),
+        0 0 28px rgba(124,92,255,.48);
+      z-index:1;
+      user-select:none;
+    }
+
+    .slotPlaceholder[hidden]{
+      display:none;
+    }
+
+    #randomImg[hidden]{
+      display:none;
+    }
+
+    .slotReels{
+      position:absolute;
+      inset:7px;
+      display:none;
+      grid-template-columns:repeat(3, 1fr);
+      gap:5px;
+      z-index:2;
+    }
+
+    .slotReel{
+      height:100%;
+      overflow:hidden;
+      border-radius:9px;
+      background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.72));
+      color:#151515;
+      border:1px solid rgba(255,209,102,.75);
+      box-shadow:inset 0 0 12px rgba(0,0,0,.18);
+    }
+
+    .slotReel span{
+      height:56px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:24px;
+      font-weight:1000;
+      line-height:1;
+    }
+
+    .randomBox.isSpinning .slotReels{
+      display:grid;
+    }
+
+    .randomBox.isSpinning .randomImg{
+      opacity:0;
+    }
+
+    .randomBox.isSpinning #randomImg{
+      opacity:0;
+    }
+
+    .randomBox.isSpinning .slotReel:nth-child(1) span{
+      animation:reelSpin .28s linear infinite;
+    }
+    .randomBox.isSpinning .slotReel:nth-child(2) span{
+      animation:reelSpin .21s linear infinite reverse;
+    }
+    .randomBox.isSpinning .slotReel:nth-child(3) span{
+      animation:reelSpin .34s linear infinite;
+    }
+
+    .randomBox.winnerPop .randomImgWrap{
+      animation:winnerPop .48s ease;
+      box-shadow:0 0 30px rgba(255,209,102,.40), inset 0 0 0 1px rgba(255,209,102,.20);
+    }
+
+    .randomBox.winnerPop .randomName{
+      color:#ffd166;
+    }
+
+    @keyframes slotSweep{
+      to{ transform:translateX(130%); }
+    }
+
+    @keyframes reelSpin{
+      from{ transform:translateY(0); }
+      to{ transform:translateY(-224px); }
+    }
+
+    @keyframes winnerPop{
+      0%{ transform:scale(.88) rotate(-2deg); }
+      55%{ transform:scale(1.15) rotate(2deg); }
+      100%{ transform:scale(1) rotate(0); }
+    }
+
     /* --- end randomizer --- */
 
     .grid{
@@ -459,14 +658,20 @@
 
     <section class="randomBox" id="randomBox" aria-live="polite">
       <div class="randomHeader">
-        <div class="randomTitle">🎲 Zufalls-Emote</div>
-        <button class="randomBtn" id="randomBtn" type="button">Shuffle</button>
+        <div class="randomTitle"></div>
+        <button class="randomBtn slotBtn" id="randomBtn" type="button"><span class="slotBtnIcon">🎰</span><span>SPIN</span></button>
       </div>
 
       <div class="randomContent">
         <div class="randomPreview" id="randomPreview">
-          <div class="randomImgWrap">
-            <img id="randomImg" alt="Zufalls-Emote" loading="lazy" />
+          <div class="randomImgWrap" id="randomImgWrap">
+            <div class="slotReels" id="slotReels" aria-hidden="true">
+              <div class="slotReel"><span>7</span><span>★</span><span>?</span><span>7</span></div>
+              <div class="slotReel"><span>★</span><span>7</span><span>!</span><span>★</span></div>
+              <div class="slotReel"><span>?</span><span>!</span><span>7</span><span>?</span></div>
+            </div>
+            <div class="slotPlaceholder" id="slotPlaceholder" aria-hidden="true">?</div>
+            <img id="randomImg" alt="Zufalls-Emote" loading="lazy" hidden />
           </div>
           <div class="randomMeta">
             <div class="randomName" id="randomName">–</div>
@@ -524,6 +729,9 @@
 
       randomBox: document.getElementById("randomBox"),
       randomBtn: document.getElementById("randomBtn"),
+      randomImgWrap: document.getElementById("randomImgWrap"),
+      slotReels: document.getElementById("slotReels"),
+      slotPlaceholder: document.getElementById("slotPlaceholder"),
       randomImg: document.getElementById("randomImg"),
       randomName: document.getElementById("randomName"),
       randomTags: document.getElementById("randomTags")
@@ -678,19 +886,88 @@
       const e = pickRandomEmote();
       if (!e){
         els.randomName.textContent = "Keine Emotes verfügbar";
+        els.randomName.onclick = null;
+        els.randomName.classList.remove("isClickable");
         els.randomImg.removeAttribute("src");
+        els.randomImg.hidden = true;
+        els.slotPlaceholder.hidden = false;
         els.randomTags.innerHTML = "";
         return;
       }
 
+      els.slotPlaceholder.hidden = true;
+      els.randomImg.hidden = false;
       els.randomImg.src = e.img;
       els.randomImg.alt = e.name;
 
       els.randomName.textContent = e.name;
       els.randomName.onclick = () => copyToClipboard(e.name);
+      els.randomName.classList.add("isClickable");
 
       const tagsArr = parseTags(e.tags);
       renderRandomTags(tagsArr);
+    }
+
+    let isSpinning = false;
+
+    function spinRandom(){
+      if (isSpinning) return;
+
+      const pool = emotes.filter(e => e.active);
+      if (!pool.length) return;
+
+      isSpinning = true;
+      els.randomBtn.disabled = true;
+      els.randomBtn.innerHTML = `<span class="slotBtnIcon">🎰</span><span>DREHT …</span>`;
+      els.randomBox.classList.add("isSpinning");
+      els.randomBox.classList.remove("winnerPop");
+
+      els.randomImg.hidden = true;
+      els.slotPlaceholder.hidden = true;
+
+      els.randomName.textContent = "…";
+      els.randomName.onclick = null;
+      els.randomName.classList.remove("isClickable");
+      els.randomTags.innerHTML = "";
+
+      // Wichtig: Während des Spins wird KEIN neues Bild gesetzt.
+      // Dadurch muss der Browser nicht zig Emote-Bilder nachladen.
+      const duration = 1150 + Math.floor(Math.random() * 450);
+
+      window.setTimeout(() => {
+        const winner = pool[Math.floor(Math.random() * pool.length)];
+
+        els.slotPlaceholder.hidden = true;
+        els.randomImg.hidden = false;
+        els.randomImg.src = winner.img;
+        els.randomImg.alt = winner.name;
+        els.randomName.textContent = winner.name;
+        els.randomName.onclick = () => copyToClipboard(winner.name);
+        els.randomName.classList.add("isClickable");
+        renderRandomTags(parseTags(winner.tags));
+
+        els.randomBox.classList.remove("isSpinning");
+        els.randomBox.classList.add("winnerPop");
+
+        els.randomBtn.disabled = false;
+        els.randomBtn.innerHTML = `<span class="slotBtnIcon">🎰</span><span>NOCHMAL</span>`;
+
+        window.setTimeout(() => {
+          els.randomBox.classList.remove("winnerPop");
+          isSpinning = false;
+        }, 650);
+      }, duration);
+    }
+
+    function updateInitialSlotState(){
+      els.randomImg.removeAttribute("src");
+      els.randomImg.hidden = true;
+      els.slotPlaceholder.hidden = false;
+      els.randomName.textContent = "Bereit für den ersten Spin";
+      els.randomName.onclick = null;
+      els.randomName.classList.remove("isClickable");
+      els.randomTags.innerHTML = "";
+      els.randomBtn.innerHTML = `<span class="slotBtnIcon">🎰</span><span>SPIN</span>`;
     }
 
     function updateRandomVisibility(){
@@ -838,7 +1115,7 @@
       applyFilter();
     });
 
-    els.randomBtn.addEventListener("click", updateRandom);
+    els.randomBtn.addEventListener("click", spinRandom);
 
     els.topEmotesToggle.addEventListener("click", () => {
       const isOpen = els.topEmotesPanel.hidden;
@@ -868,7 +1145,7 @@
         })).filter(e => e.name && e.img);
 
         applyFilter();
-        updateRandom();
+        updateInitialSlotState();
         updateRandomVisibility();
         await loadTopEmotes();
       })
