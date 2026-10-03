@@ -3,27 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Niisa 7TV Emote Suche</title>
+  <title>Niisa 7TV Emote Suche - Halloween</title>
 
   <style>
     :root{
-      /* Halloween palette */
-      --bg:#07060c;
+      --bg:#0b0c10;
       --text:rgba(255,255,255,.92);
-      --muted:rgba(255,255,255,.62);
+      --muted:rgba(255,255,255,.6);
       --border:rgba(255,255,255,.12);
-
-      --pumpkin:#f97316;   /* orange */
-      --purple:#a855f7;    /* purple */
-      --slime:#22c55e;     /* toxic green */
-      --ember:#fb923c;
-
+      --accent:#7c5cff;
+      --suggest:#22d3ee;
       --radius:16px;
       --cardMin:120px;
-
-      --glass: rgba(255,255,255,.07);
-      --glass2: rgba(255,255,255,.10);
-      --shadow: 0 14px 44px rgba(0,0,0,.58);
     }
 
     *{ box-sizing:border-box; }
@@ -33,131 +24,57 @@
       margin:0;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       color:var(--text);
-
-      /* Spooky night + embers + purple haze */
       background:
-        radial-gradient(1100px 600px at 12% -10%, rgba(249,115,22,.20), transparent 62%),
-        radial-gradient(950px 520px at 90% 10%, rgba(168,85,247,.18), transparent 58%),
-        radial-gradient(800px 520px at 50% 120%, rgba(34,197,94,.10), transparent 60%),
-        radial-gradient(700px 400px at 65% 35%, rgba(251,146,60,.10), transparent 60%),
-        linear-gradient(to bottom, rgba(0,0,0,.18), rgba(0,0,0,.62)),
+        radial-gradient(1200px 600px at 15% -10%, rgba(124,92,255,.22), transparent 60%),
+        radial-gradient(1000px 500px at 90% 10%, rgba(34,211,238,.16), transparent 55%),
+        radial-gradient(900px 500px at 50% 120%, rgba(16,185,129,.10), transparent 60%),
         var(--bg);
       background-repeat:no-repeat;
       background-size:100% 100%;
-      overflow-x:hidden;
-    }
-
-    /* === Halloween ambience overlays (CSS only) === */
-    .fx{
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 5; /* below header (z=10), above background */
-    }
-
-    /* Mist layer */
-    .fx::before{
-      content:"";
-      position:absolute;
-      inset:-20% -20%;
-      background:
-        radial-gradient(600px 240px at 20% 25%, rgba(255,255,255,.06), transparent 65%),
-        radial-gradient(520px 240px at 70% 40%, rgba(255,255,255,.05), transparent 66%),
-        radial-gradient(700px 260px at 45% 70%, rgba(255,255,255,.045), transparent 68%);
-      filter: blur(8px);
-      opacity: .55;
-      transform: translateX(-3%);
-      animation: mistDrift 18s ease-in-out infinite alternate;
-      mix-blend-mode: screen;
-    }
-
-    @keyframes mistDrift{
-      from { transform: translateX(-3%) translateY(0); }
-      to   { transform: translateX(3%) translateY(1%); }
-    }
-
-    /* Floating embers / spooky particles */
-    .fx::after{
-      content:"";
-      position:absolute;
-      inset:-200px 0 0 0;
-      background-image:
-        radial-gradient(2px 2px at 10% 20%, rgba(249,115,22,.75) 55%, transparent 56%),
-        radial-gradient(1.5px 1.5px at 30% 40%, rgba(168,85,247,.65) 55%, transparent 56%),
-        radial-gradient(2.5px 2.5px at 70% 15%, rgba(249,115,22,.55) 55%, transparent 56%),
-        radial-gradient(1.2px 1.2px at 90% 35%, rgba(34,197,94,.55) 55%, transparent 56%),
-        radial-gradient(2px 2px at 50% 60%, rgba(251,146,60,.50) 55%, transparent 56%),
-        radial-gradient(1.4px 1.4px at 15% 75%, rgba(249,115,22,.45) 55%, transparent 56%),
-        radial-gradient(2.2px 2.2px at 85% 80%, rgba(168,85,247,.45) 55%, transparent 56%);
-      background-size: 420px 420px;
-      background-repeat: repeat;
-      opacity: .55;
-      filter: blur(.1px) drop-shadow(0 0 6px rgba(249,115,22,.10));
-      animation: particlesDown 22s linear infinite;
-    }
-
-    @keyframes particlesDown{
-      to { transform: translateY(520px); }
-    }
-
-    @media (prefers-reduced-motion: reduce){
-      .fx::before, .fx::after { animation: none; }
-      .card, input, .chip { transition: none; }
     }
 
     header{
       position:sticky; top:0; z-index:10;
       padding:14px 16px;
       backdrop-filter:blur(14px);
-      background:linear-gradient(to bottom, rgba(7,6,12,.92), rgba(7,6,12,.72));
+      background:linear-gradient(to bottom, rgba(11,12,16,.90), rgba(11,12,16,.70));
       border-bottom:1px solid var(--border);
     }
 
-    /* pumpkin glow line */
-    header::before{
-      content:"";
-      position:absolute;
-      left:0; right:0; top:0;
-      height:3px;
-      background: linear-gradient(90deg,
-        rgba(249,115,22,.95),
-        rgba(168,85,247,.85),
-        rgba(34,197,94,.70),
-        rgba(249,115,22,.95)
-      );
-      opacity:.95;
-      filter: blur(.2px);
+    .topbar{ max-width:1100px; margin:0 auto; display:grid; gap:10px; }
+    .titleRow{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap; }
+    .titleLeft{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+    h1{ font-size:16px; margin:0; }
+    .counter{ font-size:12px; color:var(--muted); }
+
+    .navBtn{
+      display:inline-block;
+      padding:8px 14px;
+      border-radius:12px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.15);
+      color:white;
+      text-decoration:none;
+      font-size:13px;
+      transition:.15s;
     }
 
-    .topbar{ max-width:1100px; margin:0 auto; display:grid; gap:10px; }
-    .titleRow{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
-    h1{
-      font-size:16px; margin:0;
-      letter-spacing:.2px;
-      text-shadow: 0 0 18px rgba(249,115,22,.18), 0 0 30px rgba(168,85,247,.12);
+    .navBtn:hover{
+      background:rgba(255,255,255,.15);
     }
-    .counter{ font-size:12px; color:var(--muted); }
 
     .searchWrap{ position:relative; }
     input{
       width:100%;
       padding:12px 14px;
       border-radius:14px;
-      border:1px solid rgba(255,255,255,.15);
+      border:1px solid var(--border);
       background:rgba(255,255,255,.06);
       color:var(--text);
       font-size:15px;
       outline:none;
-      box-shadow: 0 10px 30px rgba(0,0,0,.38);
-      transition: border-color .15s, transform .15s, box-shadow .15s, background .15s;
     }
     input::placeholder{ color:rgba(255,255,255,.45); }
-    input:focus{
-      border-color: rgba(249,115,22,.55);
-      box-shadow: 0 12px 40px rgba(0,0,0,.48), 0 0 0 4px rgba(249,115,22,.10);
-      background: rgba(255,255,255,.08);
-      transform: translateY(-1px);
-    }
 
     .chips{ display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
 
@@ -168,39 +85,446 @@
       padding:6px 10px;
       border-radius:999px;
       font-size:12px;
-      background: linear-gradient(180deg, rgba(249,115,22,.16), rgba(249,115,22,.08));
-      border:1px solid rgba(249,115,22,.26);
+      background:rgba(124,92,255,.16);
+      border:1px solid rgba(124,92,255,.28);
       cursor:pointer;
       user-select:none;
-      transition: transform .12s ease, border-color .12s ease, background .12s ease;
-      box-shadow: 0 10px 24px rgba(0,0,0,.22);
-    }
-    .chip:hover{
-      transform: translateY(-1px);
-      border-color: rgba(168,85,247,.30);
-      background: linear-gradient(180deg, rgba(168,85,247,.12), rgba(249,115,22,.08));
     }
 
     .chip .close{
-      font-weight:800;
-      opacity:.8;
+      font-weight:700;
+      opacity:.75;
       cursor:pointer;
       padding-left:4px;
       line-height:1;
     }
     .chip .close:hover{ opacity:1; }
 
-    /* suggestions: purple-ish */
     #suggestions .chip{
-      background: linear-gradient(180deg, rgba(168,85,247,.16), rgba(168,85,247,.08));
-      border-color: rgba(168,85,247,.26);
-    }
-    #suggestions .chip:hover{
-      border-color: rgba(249,115,22,.34);
-      background: linear-gradient(180deg, rgba(249,115,22,.12), rgba(168,85,247,.08));
+      background:rgba(34,211,238,.14);
+      border-color:rgba(34,211,238,.30);
     }
 
     .wrap{ max-width:1100px; margin:0 auto; padding:16px; }
+
+    .topEmotesBox{
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+
+    .topEmotesToggle{
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:0;
+      background:none;
+      border:none;
+      color:inherit;
+      cursor:pointer;
+      text-align:left;
+    }
+
+    .topEmotesTitleWrap{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      min-width:0;
+    }
+
+    .topEmotesTitle{
+      font-size:13px;
+      color: rgba(255,255,255,.85);
+      font-weight:700;
+      letter-spacing:.2px;
+    }
+
+    .topEmotesSub{
+      font-size:11px;
+      color: var(--muted);
+    }
+
+    .topEmotesArrow{
+      font-size:18px;
+      line-height:1;
+      color:var(--muted);
+      transition:transform .18s ease;
+      flex:0 0 auto;
+    }
+
+    .topEmotesBox.isOpen .topEmotesArrow{
+      transform:rotate(180deg);
+    }
+
+    .topEmotesPanel{
+      margin-top:10px;
+    }
+
+    .topEmotesList{
+      display:grid;
+      gap:8px;
+    }
+
+    .topEmoteRow{
+      display:grid;
+      grid-template-columns: 34px 52px 1fr auto;
+      align-items:center;
+      gap:10px;
+      padding:8px 10px;
+      border-radius:12px;
+      background: rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .topEmoteRank{
+      font-size:13px;
+      color: var(--muted);
+      font-weight:700;
+    }
+
+    .topEmoteImgWrap{
+      width:44px;
+      height:36px;
+      border-radius:10px;
+      background: rgba(0,0,0,.20);
+      border: 1px solid rgba(255,255,255,.10);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+    }
+
+    .topEmoteImgWrap img{
+      max-width:100%;
+      max-height:32px;
+      width:auto;
+      height:auto;
+      object-fit:contain;
+      image-rendering:-webkit-optimize-contrast;
+    }
+
+    .topEmoteNameWrap{
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+      min-width:0;
+    }
+
+    .topEmoteName{
+      font-size:13px;
+      font-weight:700;
+      word-break:break-word;
+      cursor:pointer;
+    }
+
+    .topEmoteName:hover{
+      text-decoration:underline;
+    }
+
+    .topEmoteAlias{
+      font-size:11px;
+      color:var(--muted);
+      word-break:break-word;
+    }
+
+    .topEmoteCount{
+      font-size:12px;
+      color: var(--muted);
+      white-space:nowrap;
+    }
+
+    .topEmoteMissing{
+      opacity:.7;
+    }
+
+    /* --- Randomizer styles --- */
+    .randomBox{
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+    .randomHeader{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .randomTitle{
+      font-size:13px;
+      color: rgba(255,255,255,.85);
+      font-weight:700;
+      letter-spacing:.2px;
+    }
+    .randomBtn{
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.08);
+      color: rgba(255,255,255,.92);
+      border-radius: 12px;
+      padding: 10px 10px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .randomBtn:hover{ background: rgba(255,255,255,.12); }
+    .randomBtn:active{ transform: translateY(1px); }
+
+    .randomContent{ display:grid; gap:10px; }
+    .randomPreview{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    .randomImgWrap{
+      width: 92px;
+      height: 72px;
+      border-radius: 12px;
+      background: rgba(0,0,0,.20);
+      border: 1px solid rgba(255,255,255,.10);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      flex: 0 0 auto;
+    }
+    .randomImgWrap img{
+      max-width:100%;
+      max-height:66px;
+      width:auto;
+      height:auto;
+      object-fit:contain;
+      image-rendering:-webkit-optimize-contrast;
+    }
+    .randomMeta{ min-width:0; }
+    .randomName{
+      font-size:14px;
+      font-weight:700;
+      word-break:break-word;
+      cursor:default;
+      display:inline-block;
+      user-select:none;
+    }
+    .randomName.isClickable{ cursor:pointer; }
+    .randomName.isClickable:hover{ text-decoration: underline; }
+    .randomHint{
+      margin-top:4px;
+      font-size:11px;
+      color: var(--muted);
+    }
+    .randomTags{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .randomTags .chip{
+      background:rgba(34,211,238,.14);
+      border-color:rgba(34,211,238,.30);
+    }
+
+    .randomBox.isHidden{ display:none; }
+
+
+    /* --- Slot-machine upgrade --- */
+    .randomBox{
+      position:relative;
+      overflow:hidden;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.035)),
+        rgba(255,255,255,.06);
+    }
+
+    .randomBox::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:linear-gradient(90deg, transparent, rgba(255,255,255,.20), transparent);
+      transform:translateX(-130%);
+      pointer-events:none;
+    }
+
+    .randomBox.isSpinning::before{
+      animation:slotSweep .55s linear infinite;
+    }
+
+    .randomTitle::after{
+      content:"  Shuffle Mode";
+      color:#ffd166;
+      font-size:11px;
+      font-weight:800;
+      margin-left:8px;
+      letter-spacing:.4px;
+      text-transform:uppercase;
+    }
+
+    .slotBtn{
+      position:relative;
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      min-width:104px;
+      justify-content:center;
+      border:1px solid rgba(255,209,102,.50);
+      background:
+        radial-gradient(circle at 50% 20%, rgba(255,255,255,.26), transparent 28%),
+        linear-gradient(180deg, #ff4d6d, #b5173a 58%, #7a1028);
+      color:white;
+      font-weight:900;
+      letter-spacing:.7px;
+      text-shadow:0 1px 0 rgba(0,0,0,.45);
+      box-shadow:
+        inset 0 2px 0 rgba(255,255,255,.22),
+        0 6px 0 rgba(82,8,26,.95),
+        0 12px 22px rgba(0,0,0,.28);
+      transform:translateY(-3px);
+    }
+
+    .slotBtn:hover{
+      background:
+        radial-gradient(circle at 50% 20%, rgba(255,255,255,.34), transparent 30%),
+        linear-gradient(180deg, #ff5c7a, #c9184a 58%, #861333);
+    }
+
+    .slotBtn:active{
+      transform:translateY(2px);
+      box-shadow:
+        inset 0 2px 0 rgba(255,255,255,.18),
+        0 2px 0 rgba(82,8,26,.95),
+        0 8px 15px rgba(0,0,0,.22);
+    }
+
+    .slotBtn:disabled{
+      opacity:.9;
+      cursor:not-allowed;
+      transform:translateY(0);
+      box-shadow:
+        inset 0 2px 0 rgba(255,255,255,.18),
+        0 3px 0 rgba(82,8,26,.95),
+        0 8px 15px rgba(0,0,0,.22);
+    }
+
+    .slotBtnIcon{
+      filter:drop-shadow(0 1px 0 rgba(0,0,0,.4));
+    }
+
+    .randomImgWrap{
+      position:relative;
+      background:
+        linear-gradient(180deg, rgba(0,0,0,.58), rgba(0,0,0,.24)),
+        rgba(0,0,0,.20);
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.05);
+    }
+
+
+    .slotPlaceholder{
+      position:absolute;
+      inset:7px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:9px;
+      background:
+        radial-gradient(circle at 50% 25%, rgba(255,255,255,.18), transparent 34%),
+        linear-gradient(180deg, rgba(255,255,255,.14), rgba(0,0,0,.18));
+      color:rgba(255,255,255,.86);
+      font-size:42px;
+      font-weight:1000;
+      line-height:1;
+      text-shadow:
+        0 0 10px rgba(255,255,255,.18),
+        0 0 28px rgba(124,92,255,.48);
+      z-index:1;
+      user-select:none;
+    }
+
+    .slotPlaceholder[hidden]{
+      display:none;
+    }
+
+    #randomImg[hidden]{
+      display:none;
+    }
+
+    .slotReels{
+      position:absolute;
+      inset:7px;
+      display:none;
+      grid-template-columns:repeat(3, 1fr);
+      gap:5px;
+      z-index:2;
+    }
+
+    .slotReel{
+      height:100%;
+      overflow:hidden;
+      border-radius:9px;
+      background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.72));
+      color:#151515;
+      border:1px solid rgba(255,209,102,.75);
+      box-shadow:inset 0 0 12px rgba(0,0,0,.18);
+    }
+
+    .slotReel span{
+      height:56px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:24px;
+      font-weight:1000;
+      line-height:1;
+    }
+
+    .randomBox.isSpinning .slotReels{
+      display:grid;
+    }
+
+    .randomBox.isSpinning .randomImg{
+      opacity:0;
+    }
+
+    .randomBox.isSpinning #randomImg{
+      opacity:0;
+    }
+
+    .randomBox.isSpinning .slotReel:nth-child(1) span{
+      animation:reelSpin .28s linear infinite;
+    }
+    .randomBox.isSpinning .slotReel:nth-child(2) span{
+      animation:reelSpin .21s linear infinite reverse;
+    }
+    .randomBox.isSpinning .slotReel:nth-child(3) span{
+      animation:reelSpin .34s linear infinite;
+    }
+
+    .randomBox.winnerPop .randomImgWrap{
+      animation:winnerPop .48s ease;
+      box-shadow:0 0 30px rgba(255,209,102,.40), inset 0 0 0 1px rgba(255,209,102,.20);
+    }
+
+    .randomBox.winnerPop .randomName{
+      color:#ffd166;
+    }
+
+    @keyframes slotSweep{
+      to{ transform:translateX(130%); }
+    }
+
+    @keyframes reelSpin{
+      from{ transform:translateY(0); }
+      to{ transform:translateY(-224px); }
+    }
+
+    @keyframes winnerPop{
+      0%{ transform:scale(.88) rotate(-2deg); }
+      55%{ transform:scale(1.15) rotate(2deg); }
+      100%{ transform:scale(1) rotate(0); }
+    }
+
+    /* --- end randomizer --- */
 
     .grid{
       display:grid;
@@ -210,52 +534,28 @@
 
     .card{
       position:relative;
-      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.045));
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:18px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:16px;
       padding:10px;
       cursor:pointer;
       overflow:hidden;
-      box-shadow: var(--shadow);
-      transition: transform .12s ease, border-color .12s ease, background .12s ease;
-    }
-
-    /* spooky edge glow */
-    .card::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      background:
-        radial-gradient(420px 160px at 20% 0%, rgba(249,115,22,.10), transparent 55%),
-        radial-gradient(420px 160px at 80% 0%, rgba(168,85,247,.10), transparent 55%),
-        radial-gradient(500px 220px at 50% 110%, rgba(34,197,94,.06), transparent 60%);
-      opacity:.9;
-    }
-
-    .card:hover{
-      transform: translateY(-2px);
-      border-color: rgba(249,115,22,.30);
-      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.055));
     }
 
     .card.removed{
       opacity:.35;
       filter:grayscale(1);
       cursor:not-allowed;
-      box-shadow: 0 10px 24px rgba(0,0,0,.30);
     }
-    .card.removed:hover{ transform:none; border-color: rgba(255,255,255,.12); }
 
     .imgWrap{
       height:78px;
       display:flex;
       align-items:center;
       justify-content:center;
-      background:rgba(0,0,0,.22);
-      border-radius:14px;
+      background:rgba(0,0,0,.20);
+      border-radius:12px;
       overflow:hidden;
-      border: 1px solid rgba(255,255,255,.10);
     }
 
     .card img{
@@ -276,32 +576,28 @@
       font-size:11px;
       padding:3px 7px;
       border-radius:999px;
-      background:rgba(249,115,22,.20);
-      border:1px solid rgba(249,115,22,.40);
+      background:rgba(239,68,68,.20);
+      border:1px solid rgba(239,68,68,.40);
     }
 
     .toast{
       position:fixed;
       bottom:20px;
       left:50%;
-      transform:translateX(-50%) translateY(10px);
-      background:rgba(10,10,12,.92);
-      border:1px solid rgba(255,255,255,.14);
+      transform:translateX(-50%);
+      background:rgba(17,17,17,.95);
+      border:1px solid var(--border);
       padding:8px 14px;
       border-radius:999px;
       opacity:0;
-      transition: opacity .18s, transform .18s;
+      transition:.2s;
       max-width:calc(100vw - 32px);
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
       pointer-events:none;
-      box-shadow: var(--shadow);
     }
-    .toast.show{
-      opacity:1;
-      transform:translateX(-50%) translateY(0px);
-    }
+    .toast.show{ opacity:1; }
 
     .footerNote{
       text-align:center;
@@ -309,33 +605,214 @@
       color:var(--muted);
       margin-top:14px;
     }
+
+    @media (max-width: 640px){
+      .topEmoteRow{
+        grid-template-columns: 28px 44px 1fr;
+      }
+
+      .topEmoteCount{
+        grid-column: 3;
+        justify-self:start;
+      }
+    }
+  
+    /* === Halloween theme overrides === */
+    :root{
+      --bg:#07060c;
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.62);
+      --border:rgba(255,255,255,.12);
+      --accent:#f97316;
+      --suggest:#a855f7;
+    }
+
+    body{
+      background:
+        radial-gradient(1100px 600px at 12% -10%, rgba(249,115,22,.20), transparent 62%),
+        radial-gradient(950px 520px at 90% 10%, rgba(168,85,247,.18), transparent 58%),
+        radial-gradient(800px 520px at 50% 120%, rgba(34,197,94,.10), transparent 60%),
+        radial-gradient(700px 400px at 65% 35%, rgba(251,146,60,.10), transparent 60%),
+        linear-gradient(to bottom, rgba(0,0,0,.18), rgba(0,0,0,.62)),
+        var(--bg);
+      background-repeat:no-repeat;
+      background-size:100% 100%;
+      overflow-x:hidden;
+    }
+
+    .fx{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:5;
+    }
+    .fx::before{
+      content:"";
+      position:absolute;
+      inset:-20% -20%;
+      background:
+        radial-gradient(600px 240px at 20% 25%, rgba(255,255,255,.06), transparent 65%),
+        radial-gradient(520px 240px at 70% 40%, rgba(255,255,255,.05), transparent 66%),
+        radial-gradient(700px 260px at 45% 70%, rgba(255,255,255,.045), transparent 68%);
+      filter:blur(8px);
+      opacity:.55;
+      animation:mistDrift 18s ease-in-out infinite alternate;
+      mix-blend-mode:screen;
+    }
+    .fx::after{
+      content:"";
+      position:absolute;
+      inset:-200px 0 0 0;
+      background-image:
+        radial-gradient(2px 2px at 10% 20%, rgba(249,115,22,.75) 55%, transparent 56%),
+        radial-gradient(1.5px 1.5px at 30% 40%, rgba(168,85,247,.65) 55%, transparent 56%),
+        radial-gradient(2.5px 2.5px at 70% 15%, rgba(249,115,22,.55) 55%, transparent 56%),
+        radial-gradient(1.2px 1.2px at 90% 35%, rgba(34,197,94,.55) 55%, transparent 56%),
+        radial-gradient(2px 2px at 50% 60%, rgba(251,146,60,.50) 55%, transparent 56%),
+        radial-gradient(1.4px 1.4px at 15% 75%, rgba(249,115,22,.45) 55%, transparent 56%),
+        radial-gradient(2.2px 2.2px at 85% 80%, rgba(168,85,247,.45) 55%, transparent 56%);
+      background-size:420px 420px;
+      background-repeat:repeat;
+      opacity:.55;
+      animation:particlesDown 22s linear infinite;
+    }
+    @keyframes mistDrift{
+      from{transform:translateX(-3%) translateY(0)}
+      to{transform:translateX(3%) translateY(1%)}
+    }
+    @keyframes particlesDown{
+      to{transform:translateY(520px)}
+    }
+
+    header{
+      background:linear-gradient(to bottom, rgba(7,6,12,.92), rgba(7,6,12,.72));
+    }
+    header::before{
+      content:"";
+      position:absolute;
+      left:0; right:0; top:0;
+      height:3px;
+      background:linear-gradient(90deg,#f97316,#a855f7,#22c55e,#f97316);
+    }
+
+    h1{
+      text-shadow:0 0 18px rgba(249,115,22,.22),0 0 30px rgba(168,85,247,.15);
+    }
+
+    input:focus{
+      border-color:rgba(249,115,22,.55);
+      box-shadow:0 0 0 4px rgba(249,115,22,.10);
+    }
+
+    .chip{
+      background:linear-gradient(180deg,rgba(249,115,22,.16),rgba(249,115,22,.08));
+      border-color:rgba(249,115,22,.28);
+    }
+    #suggestions .chip,
+    .randomTags .chip{
+      background:linear-gradient(180deg,rgba(168,85,247,.16),rgba(168,85,247,.08));
+      border-color:rgba(168,85,247,.30);
+    }
+
+    .card,
+    .topEmotesBox,
+    .randomBox{
+      background:
+        radial-gradient(420px 160px at 20% 0%, rgba(249,115,22,.08), transparent 55%),
+        radial-gradient(420px 160px at 80% 0%, rgba(168,85,247,.08), transparent 55%),
+        rgba(255,255,255,.06);
+    }
+    .card:hover{
+      border-color:rgba(249,115,22,.35);
+      transform:translateY(-2px);
+    }
+
+    .topEmotesTitle{ color:#fb923c; }
+    .randomTitle::after{ color:#f97316; }
+
+    .slotBtn{
+      border-color:rgba(168,85,247,.55);
+      background:
+        radial-gradient(circle at 50% 20%,rgba(255,255,255,.26),transparent 28%),
+        linear-gradient(180deg,#f97316,#a855f7 62%,#581c87);
+      box-shadow:
+        inset 0 2px 0 rgba(255,255,255,.22),
+        0 6px 0 rgba(55,15,85,.95),
+        0 12px 22px rgba(0,0,0,.28);
+    }
+
+    @media (prefers-reduced-motion:reduce){
+      .fx::before,.fx::after{animation:none}
+    }
+
   </style>
 </head>
 
 <body>
-  <!-- NEW: ambience overlay -->
   <div class="fx" aria-hidden="true"></div>
-
   <header>
     <div class="topbar">
       <div class="titleRow">
-        <h1>Niisa 7TV Emote Suche - Halloween</h1>
+        <div class="titleLeft">
+          <h1>🎃 Niisa 7TV Emote Suche - Halloween</h1>
+          <a href="auchNiisa.html" class="navBtn">Zur auchNiisa Watchparties Seite</a>
+        </div>
         <div class="counter" id="counter">–</div>
       </div>
+
       <div class="counter" id="lastUpdate"></div>
 
       <div class="searchWrap">
         <input id="search" autocomplete="off" spellcheck="false" placeholder="Tags suchen (z. B. katze, yoink)" />
       </div>
 
-      <!-- aktive Filter -->
       <div class="chips" id="chips"></div>
-      <!-- Vorschläge -->
       <div class="chips" id="suggestions"></div>
     </div>
   </header>
 
   <main class="wrap">
+    <section class="topEmotesBox" id="topEmotesBox">
+      <button class="topEmotesToggle" id="topEmotesToggle" type="button" aria-expanded="false">
+        <div class="topEmotesTitleWrap">
+          <div class="topEmotesTitle">🔥 Top 10 7TV Emotes</div>
+          <div class="topEmotesSub" id="topEmotesStatus">Lade …</div>
+        </div>
+        <div class="topEmotesArrow" id="topEmotesArrow">▾</div>
+      </button>
+
+      <div class="topEmotesPanel" id="topEmotesPanel" hidden>
+        <div class="topEmotesList" id="topEmotesList"></div>
+      </div>
+    </section>
+
+    <section class="randomBox" id="randomBox" aria-live="polite">
+      <div class="randomHeader">
+        <div class="randomTitle"></div>
+        <button class="randomBtn slotBtn" id="randomBtn" type="button"><span class="slotBtnIcon">🎰</span><span>SPIN</span></button>
+      </div>
+
+      <div class="randomContent">
+        <div class="randomPreview" id="randomPreview">
+          <div class="randomImgWrap" id="randomImgWrap">
+            <div class="slotReels" id="slotReels" aria-hidden="true">
+              <div class="slotReel"><span>7</span><span>★</span><span>?</span><span>7</span></div>
+              <div class="slotReel"><span>★</span><span>7</span><span>!</span><span>★</span></div>
+              <div class="slotReel"><span>?</span><span>!</span><span>7</span><span>?</span></div>
+            </div>
+            <div class="slotPlaceholder" id="slotPlaceholder" aria-hidden="true">?</div>
+            <img id="randomImg" alt="Zufalls-Emote" loading="lazy" hidden />
+          </div>
+          <div class="randomMeta">
+            <div class="randomName" id="randomName">–</div>
+            <div class="randomHint">Klick auf den Namen kopiert ihn.</div>
+          </div>
+        </div>
+
+        <div class="randomTags" id="randomTags"></div>
+      </div>
+    </section>
+
     <div class="grid" id="grid"></div>
     <div class="footerNote">Klick kopiert den Emote-Namen (nur aktive Emotes).</div>
   </main>
@@ -343,7 +820,6 @@
   <div class="toast" id="toast">Kopiert</div>
 
   <script>
-    // 1) Manuelle Vorschläge (werden zuerst angezeigt)
     const MANUAL_SUGGESTIONS = [
       "cat",
       "hug",
@@ -357,10 +833,10 @@
       "snack"
     ];
 
-    // 2) Google Sheet Feed
     const SHEET_ID = "1RvasLLCoS_XqJXmqr-HUsfY0ffpfRqPg7efCmSWLIYE";
     const SHEET_NAME = "EmotesHalloween";
     const FEED_URL = `https://opensheet.elk.sh/${SHEET_ID}/${encodeURIComponent(SHEET_NAME)}`;
+    const STATS_URL = "https://api.streamelements.com/kappa/v2/chatstats/niisa/stats?limit=100";
 
     let emotes = [];
     let activeTerms = [];
@@ -372,7 +848,23 @@
       chips: document.getElementById("chips"),
       suggestions: document.getElementById("suggestions"),
       toast: document.getElementById("toast"),
-      lastUpdate: document.getElementById("lastUpdate")
+      lastUpdate: document.getElementById("lastUpdate"),
+
+      topEmotesBox: document.getElementById("topEmotesBox"),
+      topEmotesToggle: document.getElementById("topEmotesToggle"),
+      topEmotesPanel: document.getElementById("topEmotesPanel"),
+      topEmotesArrow: document.getElementById("topEmotesArrow"),
+      topEmotesList: document.getElementById("topEmotesList"),
+      topEmotesStatus: document.getElementById("topEmotesStatus"),
+
+      randomBox: document.getElementById("randomBox"),
+      randomBtn: document.getElementById("randomBtn"),
+      randomImgWrap: document.getElementById("randomImgWrap"),
+      slotReels: document.getElementById("slotReels"),
+      slotPlaceholder: document.getElementById("slotPlaceholder"),
+      randomImg: document.getElementById("randomImg"),
+      randomName: document.getElementById("randomName"),
+      randomTags: document.getElementById("randomTags")
     };
 
     function normalize(str){
@@ -394,6 +886,12 @@
       navigator.clipboard.writeText(text)
         .then(() => showToast(`"${text}" kopiert`))
         .catch(() => showToast("Kopieren nicht möglich"));
+    }
+
+    function setTopEmotesOpen(isOpen){
+      els.topEmotesBox.classList.toggle("isOpen", isOpen);
+      els.topEmotesPanel.hidden = !isOpen;
+      els.topEmotesToggle.setAttribute("aria-expanded", String(isOpen));
     }
 
     function renderChips(){
@@ -421,7 +919,6 @@
       const MAX = 15;
       const added = new Set();
 
-      // A) Manuelle Vorschläge zuerst (in fester Reihenfolge)
       MANUAL_SUGGESTIONS.forEach(tag => {
         tag = String(tag || "").toLowerCase().trim();
         if (!tag) return;
@@ -443,7 +940,6 @@
 
       if (added.size >= MAX) return;
 
-      // B) Auto-Füllung mit häufigsten Tags (ohne Duplikate)
       const freq = {};
       emotes.forEach(e => {
         (e.tags || "").split(",").forEach(t => {
@@ -475,6 +971,139 @@
       els.search.value = activeTerms.join(", ");
     }
 
+    function parseTags(tagsStr){
+      return String(tagsStr || "")
+        .split(",")
+        .map(t => t.trim())
+        .filter(Boolean);
+    }
+
+    function pickRandomEmote(){
+      const pool = emotes.filter(e => e.active);
+      if (!pool.length) return null;
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    function renderRandomTags(tagsArr){
+      els.randomTags.innerHTML = "";
+      if (!tagsArr.length){
+        const empty = document.createElement("div");
+        empty.className = "counter";
+        empty.textContent = "Keine Tags vorhanden.";
+        els.randomTags.appendChild(empty);
+        return;
+      }
+
+      tagsArr.forEach(tag => {
+        const c = document.createElement("span");
+        c.className = "chip";
+        c.textContent = tag;
+
+        c.onclick = () => {
+          const t = tag.toLowerCase();
+          if (!activeTerms.includes(t)) {
+            activeTerms.push(t);
+            syncSearchInput();
+            applyFilter();
+          }
+        };
+
+        els.randomTags.appendChild(c);
+      });
+    }
+
+    function updateRandom(){
+      const e = pickRandomEmote();
+      if (!e){
+        els.randomName.textContent = "Keine Emotes verfügbar";
+        els.randomName.onclick = null;
+        els.randomName.classList.remove("isClickable");
+        els.randomImg.removeAttribute("src");
+        els.randomImg.hidden = true;
+        els.slotPlaceholder.hidden = false;
+        els.randomTags.innerHTML = "";
+        return;
+      }
+
+      els.slotPlaceholder.hidden = true;
+      els.randomImg.hidden = false;
+      els.randomImg.src = e.img;
+      els.randomImg.alt = e.name;
+
+      els.randomName.textContent = e.name;
+      els.randomName.onclick = () => copyToClipboard(e.name);
+      els.randomName.classList.add("isClickable");
+
+      const tagsArr = parseTags(e.tags);
+      renderRandomTags(tagsArr);
+    }
+
+    let isSpinning = false;
+
+    function spinRandom(){
+      if (isSpinning) return;
+
+      const pool = emotes.filter(e => e.active);
+      if (!pool.length) return;
+
+      isSpinning = true;
+      els.randomBtn.disabled = true;
+      els.randomBtn.innerHTML = `<span class="slotBtnIcon">🎰</span><span>DREHT …</span>`;
+      els.randomBox.classList.add("isSpinning");
+      els.randomBox.classList.remove("winnerPop");
+
+      els.randomImg.hidden = true;
+      els.slotPlaceholder.hidden = true;
+
+      els.randomName.textContent = "…";
+      els.randomName.onclick = null;
+      els.randomName.classList.remove("isClickable");
+      els.randomTags.innerHTML = "";
+
+      // Wichtig: Während des Spins wird KEIN neues Bild gesetzt.
+      // Dadurch muss der Browser nicht zig Emote-Bilder nachladen.
+      const duration = 1150 + Math.floor(Math.random() * 450);
+
+      window.setTimeout(() => {
+        const winner = pool[Math.floor(Math.random() * pool.length)];
+
+        els.slotPlaceholder.hidden = true;
+        els.randomImg.hidden = false;
+        els.randomImg.src = winner.img;
+        els.randomImg.alt = winner.name;
+        els.randomName.textContent = winner.name;
+        els.randomName.onclick = () => copyToClipboard(winner.name);
+        els.randomName.classList.add("isClickable");
+        renderRandomTags(parseTags(winner.tags));
+
+        els.randomBox.classList.remove("isSpinning");
+        els.randomBox.classList.add("winnerPop");
+
+        els.randomBtn.disabled = false;
+        els.randomBtn.innerHTML = `<span class="slotBtnIcon">🎰</span><span>NOCHMAL</span>`;
+
+        window.setTimeout(() => {
+          els.randomBox.classList.remove("winnerPop");
+          isSpinning = false;
+        }, 650);
+      }, duration);
+    }
+
+    function updateInitialSlotState(){
+      els.randomImg.removeAttribute("src");
+      els.randomImg.hidden = true;
+      els.slotPlaceholder.hidden = false;
+      els.randomName.textContent = "Bereit für den ersten Spin";
+      els.randomName.onclick = null;
+      els.randomName.classList.remove("isClickable");
+      els.randomTags.innerHTML = "";
+      els.randomBtn.innerHTML = `<span class="slotBtnIcon">🎰</span><span>SPIN</span>`;
+    }
+
+    function updateRandomVisibility(){
+      els.randomBox.classList.toggle("isHidden", activeTerms.length > 0);
+    }
+
     function applyFilter(){
       const list = activeTerms.length
         ? emotes.filter(e => activeTerms.every(t => (e.tags || "").includes(t)))
@@ -502,24 +1131,135 @@
         });
       }
 
-      els.counter.textContent = `${list.length} / ${emotes.length}`;
+      const totalActive = emotes.filter(e => e.active).length;
+      const shownActive = list.filter(e => e.active).length;
+
+      els.counter.textContent = `${shownActive} / ${totalActive}`;
+
       renderChips();
       renderSuggestions();
+      updateRandomVisibility();
     }
 
-    // Events
+    async function loadTopEmotes(){
+      try{
+        els.topEmotesStatus.textContent = "Lade …";
+
+        const res = await fetch(STATS_URL);
+        if (!res.ok) throw new Error("Stats error: " + res.status);
+
+        const data = await res.json();
+        const rawTop = (data.sevenTVEmotes || []).slice(0, 20);
+
+        const emoteMap = new Map(
+          emotes.map(e => [String(e.name || "").toLowerCase().trim(), e])
+        );
+
+        const mergedMap = new Map();
+
+        rawTop.forEach((item, index) => {
+          const rawName = String(item.emote || item.name || item.code || "").trim();
+          const count = Number(item.amount ?? item.count ?? item.uses ?? 0);
+          const match = emoteMap.get(rawName.toLowerCase());
+
+          const mergeKey = match?.id
+            ? `id:${match.id}`
+            : `name:${rawName.toLowerCase()}`;
+
+          if (!mergedMap.has(mergeKey)) {
+            mergedMap.set(mergeKey, {
+              rankHint: index,
+              name: match?.name || rawName,
+              count: 0,
+              img: match?.img || "",
+              active: !!match?.active,
+              foundInSheet: !!match,
+              aliases: new Set(),
+              mergeKey
+            });
+          }
+
+          const entry = mergedMap.get(mergeKey);
+          entry.count += count;
+          entry.aliases.add(rawName);
+
+          if (!entry.img && match?.img) entry.img = match.img;
+          if (!entry.foundInSheet && match) entry.foundInSheet = true;
+          if (!entry.active && match?.active) entry.active = true;
+          if (!entry.name && (match?.name || rawName)) entry.name = match?.name || rawName;
+          if (index < entry.rankHint) entry.rankHint = index;
+        });
+
+        const top10 = Array.from(mergedMap.values())
+          .sort((a, b) => {
+            if (b.count !== a.count) return b.count - a.count;
+            return a.rankHint - b.rankHint;
+          })
+          .slice(0, 10)
+          .map((entry, i) => ({
+            ...entry,
+            rank: i + 1,
+            aliasList: Array.from(entry.aliases).filter(a => a !== entry.name)
+          }));
+
+        els.topEmotesList.innerHTML = "";
+
+        if (!top10.length){
+          els.topEmotesStatus.textContent = "Keine Daten";
+          els.topEmotesList.innerHTML = `<div class="counter">Keine Top-Emotes gefunden.</div>`;
+          return;
+        }
+
+        top10.forEach(emote => {
+          const row = document.createElement("div");
+          row.className = "topEmoteRow" + (emote.foundInSheet ? "" : " topEmoteMissing");
+
+          row.innerHTML = `
+            <div class="topEmoteRank">#${emote.rank}</div>
+            <div class="topEmoteImgWrap">
+              ${emote.img ? `<img src="${emote.img}" alt="${emote.name}" loading="lazy">` : ""}
+            </div>
+            <div class="topEmoteNameWrap">
+              <div class="topEmoteName">${emote.name}</div>
+              ${emote.aliasList.length ? `<div class="topEmoteAlias">Zusammengefasst: ${emote.aliasList.join(", ")}</div>` : ""}
+            </div>
+            <div class="topEmoteCount">${emote.count.toLocaleString("de-DE")}</div>
+          `;
+
+          const nameEl = row.querySelector(".topEmoteName");
+          nameEl.onclick = () => copyToClipboard(emote.name);
+
+          els.topEmotesList.appendChild(row);
+        });
+
+        els.topEmotesStatus.textContent = "Live aus StreamElements";
+      } catch(err){
+        console.error(err);
+        els.topEmotesStatus.textContent = "Fehler";
+        els.topEmotesList.innerHTML = `<div class="counter">Top-Emotes konnten nicht geladen werden.</div>`;
+      }
+    }
+
     els.search.addEventListener("input", () => {
       activeTerms = normalize(els.search.value);
       applyFilter();
     });
 
-    // Load data
+    els.randomBtn.addEventListener("click", spinRandom);
+
+    els.topEmotesToggle.addEventListener("click", () => {
+      const isOpen = els.topEmotesPanel.hidden;
+      setTopEmotesOpen(isOpen);
+    });
+
+    setTopEmotesOpen(false);
+
     fetch(FEED_URL)
       .then(r => {
         if (!r.ok) throw new Error("Feed error: " + r.status);
         return r.json();
       })
-      .then(rows => {
+      .then(async rows => {
         if (rows?.length && rows[0].updated_at) {
           els.lastUpdate.textContent = `Daten zuletzt aktualisiert: ${rows[0].updated_at}`;
         } else {
@@ -527,6 +1267,7 @@
         }
 
         emotes = (rows || []).map(r => ({
+          id: r.emote_id || "",
           name: r.emote_name || "",
           img: r.image_url || "",
           tags: String(r.tags || "").toLowerCase(),
@@ -534,6 +1275,9 @@
         })).filter(e => e.name && e.img);
 
         applyFilter();
+        updateInitialSlotState();
+        updateRandomVisibility();
+        await loadTopEmotes();
       })
       .catch(err => {
         console.error(err);
@@ -543,6 +1287,8 @@
         msg.textContent = "Konnte Emotes nicht laden (opensheet down? Sheet privat? Tabname falsch?).";
         els.grid.appendChild(msg);
         els.counter.textContent = "–";
+        els.topEmotesStatus.textContent = "Fehler";
+        els.topEmotesList.innerHTML = `<div class="counter">Top-Emotes konnten nicht geladen werden.</div>`;
       });
   </script>
 </body>
